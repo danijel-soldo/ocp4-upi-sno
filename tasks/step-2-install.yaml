@@ -6,7 +6,7 @@
     - ../defaults/main.yaml
   handlers:
   - import_tasks: ../handlers/main.yml
-    
+
   tasks:
 
   - name: Set setup facts
@@ -23,5 +23,9 @@
   - name: Waiting for installation completed
     shell: "openshift-install wait-for install-complete --log-level {{ log_level }}"
     args:
-      chdir: "{{ workdir }}"  
+      chdir: "{{ workdir }}"
 
+  - name: stop httpd after installation completed
+    service:
+      name: httpd
+      state: stopped
