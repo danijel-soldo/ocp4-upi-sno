@@ -18,6 +18,7 @@ server={{ dns.forwarder2 }}
 
 addn-hosts=/etc/dnsmasq.d/addnhosts
 
+{% if dhcp.enabled | default(true) %}
 
 ##################################
 # DHCP
@@ -45,3 +46,13 @@ dhcp-host={{ day2_worker.macaddr }},{{ day2_worker.ipaddr }},{{ day2_worker.name
 enable-tftp
 tftp-root=/var/lib/tftpboot
 dhcp-boot=boot/grub2/powerpc-ieee1275/core.elf
+{% else %}
+
+##################################
+# TFTP (without DHCP)
+##################################
+# DHCP is disabled - using static IP configuration
+# Only DNS and TFTP services are enabled
+enable-tftp
+tftp-root=/var/lib/tftpboot
+{% endif %}

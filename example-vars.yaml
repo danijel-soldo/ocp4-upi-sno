@@ -11,6 +11,9 @@ dns:
 dhcp:
   router: "192.168.79.2"
   netmask: "255.255.255.0"
+  # Set to false to disable DHCP and use static IP configuration only
+  # When disabled, dnsmasq will only provide DNS services
+  enabled: true
 sno:
   name: sno
   macaddr: "fa:4e:86:23:37:20"

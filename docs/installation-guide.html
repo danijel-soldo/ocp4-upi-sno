@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenShift SNO on PowerVM - Installation Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-card {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #e0e0e0;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mode-card.dhcp {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mode-card.static {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .mode-card h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .mode-card ul {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .mode-card li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .mode-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .diagram {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .diagram-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .infrastructure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .infra-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .infra-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .infra-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .infra-item li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .infra-item li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .yes {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .no {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 5px solid #ffc107;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .network-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .network-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .network-box {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .network-box.bastion {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .network-box.sno {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .network-arrow {
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .service-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+
+        .checklist {
+            background: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .checklist h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .checklist ul {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 1.5em;
+            color: #4caf50;
+        }
+
+        .file-viewer {
+            margin: 30px 0;
+        }
+
+        .file-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-header:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .file-header h4 {
+            margin: 0;
+            color: white;
+        }
+
+        .file-toggle {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+        }
+
+        .file-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .file-content {
+            display: none;
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .file-content.show {
+            display: block;
+        }
+
+        .file-content pre {
+            margin: 0;
+            white-space: pre;
+        }
+
+        .file-meta {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        footer {
+            background: #2d2d2d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .network-row {
+                flex-direction: column;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 OpenShift SNO on PowerVM</h1>
+            <p>Automated Installation Guide - DHCP & Static IP Modes</p>
+        </header>
+
+        <div class="content">
+            <!-- Overview Section -->
+            <div class="section">
+                <h2>📋 Overview</h2>
+                <p>This automation tool deploys Single Node OpenShift (SNO) on IBM PowerVM systems using Ansible. It supports two installation modes to accommodate different network environments.</p>
+                
+                <div class="highlight">
+                    <strong>🎯 Key Feature:</strong> Choose between DHCP-based or static IP installation depending on your infrastructure requirements and security policies.
+                </div>
+            </div>
+
+            <!-- Installation Modes -->
+            <div class="section">
+                <h2>🔧 Installation Modes</h2>
+                
+                <div class="mode-selector">
+                    <div class="mode-card dhcp">
+                        <h3>🌐 DHCP Mode (Default)</h3>
+                        <p>Traditional PXE boot with DHCP services</p>
+                        <ul>
+                            <li>Automatic IP assignment</li>
+                            <li>Full PXE boot support</li>
+                            <li>DHCP, DNS, HTTP, TFTP services</li>
+                            <li>Ideal for lab environments</li>
+                            <li>Quick setup</li>
+                        </ul>
+                    </div>
+
+                    <div class="mode-card static">
+                        <h3>🔒 Static IP Mode</h3>
+                        <p>DNS-only mode for restricted environments</p>
+                        <ul>
+                            <li>No DHCP server required</li>
+                            <li>Static IP via kernel parameters</li>
+                            <li>DNS, HTTP, TFTP services only</li>
+                            <li>Security compliance friendly</li>
+                            <li>Predictable networking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infrastructure Requirements -->
+            <div class="section">
+                <h2>🏗️ Infrastructure Requirements</h2>
+                
+                <div class="diagram">
+                    <div class="diagram-title">Network Architecture</div>
+                    <div class="network-diagram">
+                        <div class="network-row">
+                            <div class="network-box bastion">
+                                <h4>Bastion Node</h4>
+                                <p><strong>IP:</strong> 192.168.79.2</p>
+                                <p><strong>Resources:</strong></p>
+                                <p>2 vCPU | 8GB RAM | 50GB</p>
+                                <div>
+                                    <span class="service-badge">DNS</span>
+                                    <span class="service-badge">HTTP</span>
+                                    <span class="service-badge">TFTP</span>
+                                    <span class="service-badge">DHCP*</span>
+                                </div>
+                                <small>*DHCP optional</small>
+                            </div>
+                            
+                            <div class="network-arrow">⟷</div>
+                            
+                            <div class="network-box sno">
+                                <h4>SNO Node</h4>
+                                <p><strong>IP:</strong> 192.168.79.10</p>
+                                <p><strong>Resources:</strong></p>
+                                <p>8 vCPU | 16GB RAM | 120GB</p>
+                                <div>
+                                    <span class="service-badge">OpenShift</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>📝 Information Checklist</h3>
+                <p>Gather the following information from your infrastructure team before starting:</p>
+
+                <div class="infrastructure-grid">
+                    <div class="infra-item">
+                        <h4>🖥️ PowerVM Details</h4>
+                        <ul>
+                            <li>HMC hostname/IP</li>
+                            <li>HMC username</li>
+                            <li>CEC (System) name</li>
+                            <li>LPAR name</li>
+                            <li>LPAR profile</li>
+                        </ul>
+                    </div>
+
+                    <div class="infra-item">
+                        <h4>🌐 Network Information</h4>
+                        <ul>
+                            <li>SNO IP address</li>
+                            <li>Bastion IP address</li>
+                            <li>Network gateway</li>
+                            <li>Subnet mask</li>
+                            <li>DNS forwarders</li>
+                        </ul>
+                    </div>
+
+                    <div class="infra-item">
+                        <h4>🔌 Hardware Details</h4>
+                        <ul>
+                            <li>SNO MAC address</li>
+                            <li>Network interface name</li>
+                            <li>Installation disk path</li>
+                            <li>Storage capacity</li>
+                        </ul>
+                    </div>
+
+                    <div class="infra-item">
+                        <h4>🔐 OpenShift Details</h4>
+                        <ul>
+                            <li>Pull secret</li>
+                            <li>SSH public key</li>
+                            <li>Domain name</li>
+                            <li>Cluster ID</li>
+                            <li>OCP version</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="section">
+                <h2>⚖️ Mode Comparison</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>DHCP Mode</th>
+                            <th>Static IP Mode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>DHCP Server Required</strong></td>
+                            <td class="yes">✓ Yes</td>
+                            <td class="no">✗ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DNS Service</strong></td>
+                            <td class="yes">✓ Yes</td>
+                            <td class="yes">✓ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HTTP Service</strong></td>
+                            <td class="yes">✓ Yes</td>
+                            <td class="yes">✓ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TFTP Service</strong></td>
+                            <td class="yes">✓ Yes</td>
+                            <td class="yes">✓ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Firewall Port 67/udp</strong></td>
+                            <td class="yes">✓ Open</td>
+                            <td class="no">✗ Closed</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IP Configuration Method</strong></td>
+                            <td>DHCP lease</td>
+                            <td>Kernel parameters</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Network Boot Command</strong></td>
+                            <td>lpar_netboot -D</td>
+                            <td>lpar_netboot (no -D)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security Compliance</strong></td>
+                            <td>Standard</td>
+                            <td>High (no DHCP)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Setup Complexity</strong></td>
+                            <td>Simple</td>
+                            <td>Simple</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Best For</strong></td>
+                            <td>Lab, Dev environments</td>
+                            <td>Production, Restricted networks</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Configuration Examples -->
+            <div class="section">
+                <h2>⚙️ Configuration Examples</h2>
+                
+                <h3>DHCP Mode Configuration</h3>
+                <div class="code-block">
+<pre>---
+helper:
+  name: "helper"
+  ipaddr: "192.168.79.2"
+
+dns:
+  domain: "cloud.lab"
+  clusterid: "sno"
+  forwarder1: "9.9.9.9"
+
+dhcp:
+  router: "192.168.79.2"
+  netmask: "255.255.255.0"
+  enabled: true  # DHCP mode (default)
+
+sno:
+  name: sno
+  macaddr: "fa:4e:86:23:37:20"
+  ipaddr: "192.168.79.10"
+  disk: "/dev/sda"
+  pvmcec: Server-9080-HEX-SN785EDA8
+  pvmlpar: cp4d-3-worker-1
+
+pvm_hmc: hmc_user@hmc.host.ip</pre>
+                </div>
+
+                <h3>Static IP Mode Configuration</h3>
+                <div class="code-block">
+<pre>---
+helper:
+  name: "helper"
+  ipaddr: "192.168.79.2"
+
+dns:
+  domain: "cloud.lab"
+  clusterid: "sno"
+  forwarder1: "9.9.9.9"
+
+dhcp:
+  router: "192.168.79.2"
+  netmask: "255.255.255.0"
+  enabled: false  # Static IP mode
+
+sno:
+  name: sno
+  macaddr: "fa:4e:86:23:37:20"
+  ipaddr: "192.168.79.10"
+  disk: "/dev/sda"
+  pvmcec: Server-9080-HEX-SN785EDA8
+  pvmlpar: cp4d-3-worker-1
+
+pvm_hmc: hmc_user@hmc.host.ip</pre>
+                </div>
+            </div>
+
+            <!-- Installation Steps -->
+            <div class="section">
+                <h2>🚀 Installation Steps</h2>
+                
+                <div class="checklist">
+                    <h4>Pre-Installation Checklist</h4>
+                    <ul>
+                        <li>Gather all infrastructure information</li>
+                        <li>Ensure bastion node is provisioned</li>
+                        <li>Set SELinux to permissive mode</li>
+                        <li>Configure SSH access to HMC</li>
+                        <li>Obtain OpenShift pull secret</li>
+                        <li>Generate SSH key pair</li>
+                        <li>Choose installation mode (DHCP or Static IP)</li>
+                    </ul>
+                </div>
+
+                <h3>Step 1: Prepare Configuration</h3>
+                <p>Create your variables file based on the examples above:</p>
+                <div class="code-block">
+<pre>cp example-vars.yaml my-vars.yaml
+# Edit my-vars.yaml with your infrastructure details</pre>
+                </div>
+
+                <h3>Step 2: Run Installation</h3>
+                <div class="code-block">
+<pre>ansible-playbook tasks/main.yml -e @my-vars.yaml</pre>
+                </div>
+
+                <h3>Step 3: Monitor Progress</h3>
+                <p>The automation will:</p>
+                <ul style="margin-left: 40px; margin-top: 10px;">
+                    <li>✓ Validate your configuration</li>
+                    <li>✓ Setup required services (DNS, HTTP, TFTP, DHCP*)</li>
+                    <li>✓ Download OpenShift and RHCOS files</li>
+                    <li>✓ Generate ignition files</li>
+                    <li>✓ Configure PXE boot</li>
+                    <li>✓ Initiate network boot</li>
+                    <li>✓ Monitor installation completion</li>
+                </ul>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="section">
+                <h2>🔍 Troubleshooting</h2>
+                
+                <h3>Common Issues</h3>
+                
+                <div class="infra-item" style="margin-bottom: 20px;">
+                    <h4>Validation Fails</h4>
+                    <ul>
+                        <li>Check all required parameters are defined</li>
+                        <li>Verify IP addresses are in correct format</li>
+                        <li>Ensure MAC address format is correct (XX:XX:XX:XX:XX:XX)</li>
+                    </ul>
+                </div>
+
+                <div class="infra-item" style="margin-bottom: 20px;">
+                    <h4>Network Boot Fails</h4>
+                    <ul>
+                        <li>Verify HMC connectivity</li>
+                        <li>Check LPAR and CEC names are correct</li>
+                        <li>Ensure MAC address matches LPAR configuration</li>
+                        <li>Verify TFTP service is running</li>
+                    </ul>
+                </div>
+
+                <div class="infra-item">
+                    <h4>DNS Resolution Issues</h4>
+                    <ul>
+                        <li>Check dnsmasq service status</li>
+                        <li>Verify DNS forwarders are reachable</li>
+                        <li>Test DNS resolution: dig @bastion_ip api.sno.domain</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Testing -->
+            <div class="section">
+                <h2>🧪 Testing Your Configuration</h2>
+                <p>Before running the actual installation, test your configuration:</p>
+                
+                <div class="code-block">
+<pre># Run validation tests
+bash tests/test_templates.sh
+
+# Check configuration with dry-run
+ansible-playbook tasks/main.yml -e @my-vars.yaml --check</pre>
+                </div>
+
+                <div class="highlight">
+                    <strong>💡 Pro Tip:</strong> Always run the test suite before actual installation to catch configuration errors early.
+                </div>
+            </div>
+
+            <!-- Viewable Files -->
+            <div class="section">
+                <h2>📄 View Installation Files</h2>
+                <p>Click on any file below to view its contents. These are the key files used during the installation process.</p>
+
+                <!-- Validation Config -->
+                <div class="file-viewer">
+                    <div class="file-header" onclick="toggleFile('validate-config')">
+                        <h4>📋 tasks/validate_config.yaml - Configuration Validation</h4>
+                        <span class="file-toggle" id="toggle-validate-config">▼</span>
+                    </div>
+                    <div class="file-content" id="validate-config">
+                        <div class="file-meta">
+                            <strong>Purpose:</strong> Validates configuration parameters before installation<br>
+                            <strong>Checks:</strong> IP formats, MAC addresses, required parameters, mode-specific requirements
+                        </div>
+                        <pre>---
+# Validation tasks for static IP configuration
+- name: Validate DHCP configuration
+  block:
+    - name: Check if dhcp.enabled is defined
+      assert:
+        that:
+          - dhcp.enabled is defined
+        fail_msg: "dhcp.enabled must be defined. Set to true for DHCP mode or false for static IP mode."
+        success_msg: "DHCP mode configuration is valid"
+      when: dhcp.enabled is not defined
+
+    - name: Display installation mode
+      debug:
+        msg: "Installation mode: {{ 'DHCP' if (dhcp.enabled | default(true)) else 'Static IP (No DHCP)' }}"
+
+- name: Validate static IP mode requirements
+  when: not (dhcp.enabled | default(true))
+  block:
+    - name: Ensure required network parameters are defined for static IP
+      assert:
+        that:
+          - sno.ipaddr is defined
+          - dhcp.router is defined
+          - dhcp.netmask is defined
+          - helper.ipaddr is defined
+          - sno.macaddr is defined
+        fail_msg: "Static IP mode requires: sno.ipaddr, dhcp.router, dhcp.netmask, helper.ipaddr, and sno.macaddr"
+        success_msg: "Static IP configuration parameters are valid"
+
+    - name: Validate IP address format
+      assert:
+        that:
+          - sno.ipaddr | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+          - helper.ipaddr | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+          - dhcp.router | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+        fail_msg: "Invalid IP address format detected"
+        success_msg: "IP address formats are valid"
+
+    - name: Validate MAC address format
+      assert:
+        that:
+          - sno.macaddr | regex_search('^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$')
+        fail_msg: "Invalid MAC address format. Expected format: XX:XX:XX:XX:XX:XX"
+        success_msg: "MAC address format is valid"
+...</pre>
+                    </div>
+                </div>
+
+                <!-- dnsmasq Template -->
+                <div class="file-viewer">
+                    <div class="file-header" onclick="toggleFile('dnsmasq-template')">
+                        <h4>🌐 templates/dnsmasq.conf.j2 - DNS/DHCP Configuration</h4>
+                        <span class="file-toggle" id="toggle-dnsmasq-template">▼</span>
+                    </div>
+                    <div class="file-content" id="dnsmasq-template">
+                        <div class="file-meta">
+                            <strong>Purpose:</strong> Configures dnsmasq for DNS, DHCP (optional), and TFTP services<br>
+                            <strong>Key Feature:</strong> Conditional DHCP based on dhcp.enabled parameter
+                        </div>
+                        <pre>#################################
+# DNS
+##################################
+#domain-needed
+bogus-priv
+bind-dynamic
+no-hosts
+expand-hosts
+
+interface={{ networkifacename }}
+domain={{ dns.clusterid }}.{{ dns.domain | lower }}
+local=/{{ dns.clusterid }}.{{ dns.domain | lower }}/
+address=/apps.{{ dns.clusterid }}.{{ dns.domain | lower }}/{{ sno.ipaddr }}
+server={{ dns.forwarder1 }}
+{% if dns.forwarder2 is defined %}
+server={{ dns.forwarder2 }}
+{% endif %}
+
+addn-hosts=/etc/dnsmasq.d/addnhosts
+
+{% if dhcp.enabled | default(true) %}
+
+##################################
+# DHCP
+##################################
+dhcp-ignore=tag:!known
+dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
+
+dhcp-range={{ sno.ipaddr }},static
+
+dhcp-option=option:router,{{ dhcp.router }}
+dhcp-option=option:netmask,{{ dhcp.netmask }}
+dhcp-option=option:dns-server,{{ helper.ipaddr }}
+
+dhcp-host={{ sno.macaddr }},{{ sno.name }},{{ sno.ipaddr }},infinite
+
+###############################
+# PXE
+###############################
+enable-tftp
+tftp-root=/var/lib/tftpboot
+dhcp-boot=boot/grub2/powerpc-ieee1275/core.elf
+{% else %}
+
+##################################
+# TFTP (without DHCP)
+##################################
+# DHCP is disabled - using static IP configuration
+# Only DNS and TFTP services are enabled
+enable-tftp
+tftp-root=/var/lib/tftpboot
+{% endif %}</pre>
+                    </div>
+                </div>
+
+                <!-- GRUB Generation -->
+                <div class="file-viewer">
+                    <div class="file-header" onclick="toggleFile('grub-generation')">
+                        <h4>⚙️ tasks/generate_grub.yaml - Boot Configuration</h4>
+                        <span class="file-toggle" id="toggle-grub-generation">▼</span>
+                    </div>
+                    <div class="file-content" id="grub-generation">
+                        <div class="file-meta">
+                            <strong>Purpose:</strong> Generates GRUB configuration for PXE boot<br>
+                            <strong>Key Feature:</strong> Dynamic IP configuration (DHCP vs static kernel parameters)
+                        </div>
+                        <pre>---
+- name: Set IP configuration for kernel boot parameters
+  set_fact:
+    ip_config: "{% if dhcp.enabled | default(true) %}ip=dhcp{% else %}ip={{ sno.ipaddr }}::{{ dhcp.router }}:{{ dhcp.netmask }}:{{ sno.name }}.{{ dns.clusterid }}.{{ dns.domain }}:{{ networkifacename }}:none nameserver={{ helper.ipaddr }}{% endif %}"
+
+- name: create grub2 block
+  when: ignition == "sno.ign"
+  blockinfile:
+    marker: ""
+    content: |
+      if [ ${net_default_mac} == {{ mac }} ]; then
+      default=0
+      fallback=1
+      timeout=1
+      menuentry "CoreOS (BIOS)" {
+         echo "Loading kernel"
+         linux "/rhcos/kernel" {{ ip_config }} rd.neednet=1 ignition.platform.id=metal ignition.firstboot {{ coreos_inst_url }} ignition.config.url={{ ignition_url }}/{{ ignition }}
+
+         echo "Loading initrd"
+         initrd  "/rhcos/initramfs.img"
+      }
+      fi
+    dest: /var/lib/tftpboot/boot/grub2/grub.cfg
+...</pre>
+                    </div>
+                </div>
+
+                <!-- Test Script -->
+                <div class="file-viewer">
+                    <div class="file-header" onclick="toggleFile('test-script')">
+                        <h4>🧪 tests/test_templates.sh - Validation Test Suite</h4>
+                        <span class="file-toggle" id="toggle-test-script">▼</span>
+                    </div>
+                    <div class="file-content" id="test-script">
+                        <div class="file-meta">
+                            <strong>Purpose:</strong> Shell-based test suite to validate static IP feature<br>
+                            <strong>Tests:</strong> 15 comprehensive checks (all passing ✅)
+                        </div>
+                        <pre>#!/bin/bash
+# Quick shell-based tests for static IP feature
+# Can be run from anywhere
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Test counter
+PASSED=0
+FAILED=0
+TOTAL=0
+
+# Get script directory and project root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+
+echo "=========================================="
+echo "Static IP Feature - Shell Tests"
+echo "=========================================="
+
+# Test 1: Check if templates exist
+echo "TEST 1: Checking template files exist..."
+if [ -f "$PROJECT_ROOT/templates/dnsmasq.conf.j2" ]; then
+    echo -e "${GREEN}✅ PASSED${NC}: dnsmasq.conf.j2 exists"
+    PASSED=$((PASSED + 1))
+else
+    echo -e "${RED}❌ FAILED${NC}: dnsmasq.conf.j2 missing"
+    FAILED=$((FAILED + 1))
+fi
+TOTAL=$((TOTAL + 1))
+
+# ... more tests ...
+
+echo "=========================================="
+echo "TEST SUMMARY"
+echo "=========================================="
+echo "Total Tests: $TOTAL"
+echo -e "${GREEN}Passed: $PASSED${NC}"
+echo "=========================================="</pre>
+                    </div>
+                </div>
+
+                <!-- Example Variables -->
+                <div class="file-viewer">
+                    <div class="file-header" onclick="toggleFile('example-vars')">
+                        <h4>📝 example-vars.yaml - Configuration Template</h4>
+                        <span class="file-toggle" id="toggle-example-vars">▼</span>
+                    </div>
+                    <div class="file-content" id="example-vars">
+                        <div class="file-meta">
+                            <strong>Purpose:</strong> Example configuration file with all required parameters<br>
+                            <strong>Usage:</strong> Copy and customize for your environment
+                        </div>
+                        <pre>---
+helper:
+  name: "helper"
+  ipaddr: "192.168.79.2"
+  #networkifacename: "env34"
+
+dns:
+  domain: "cloud.lab"
+  clusterid: "sno"
+  forwarder1: "9.9.9.9"
+  forwarder2: "8.8.4.4"
+
+dhcp:
+  router: "192.168.79.2"
+  netmask: "255.255.255.0"
+  # Set to false to disable DHCP and use static IP configuration only
+  # When disabled, dnsmasq will only provide DNS services
+  enabled: true
+
+sno:
+  name: sno
+  macaddr: "fa:4e:86:23:37:20"
+  ipaddr: "192.168.79.10"
+  disk: "/dev/sda"
+  pvmcec: Server-9080-HEX-SN785EDA8
+  pvmlpar: cp4d-3-worker-1
+
+pvm_hmc: hmc_user@hmc.host.ip
+
+force_ocp_download: true
+rhcos_arch: "ppc64le"
+ocp_client_arch: "ppc64le"
+
+pull_secret: '{{ lookup("file", "~/.openshift/pull-secret") | from_json | to_json }}'
+public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+workdir: "~/ocp4-sno"
+log_level: info</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources -->
+            <div class="section">
+                <h2>📚 Additional Resources</h2>
+                <ul style="margin-left: 40px;">
+                    <li><strong>README.md</strong> - Complete installation documentation</li>
+                    <li><strong>STATIC_IP_GUIDE.md</strong> - Quick reference for static IP mode</li>
+                    <li><strong>CHANGELOG_STATIC_IP.md</strong> - Technical implementation details</li>
+                    <li><strong>tests/README_TESTS.md</strong> - Testing guide</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>OpenShift SNO on PowerVM - Automated Installation Tool</p>
+            <p>© 2026 - IBM Bob</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleFile(fileId) {
+            const content = document.getElementById(fileId);
+            const toggle = document.getElementById('toggle-' + fileId);
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                toggle.classList.remove('open');
+            } else {
+                content.classList.add('show');
+                toggle.classList.add('open');
+            }
+        }
+    </script>
+</body>
+</html>

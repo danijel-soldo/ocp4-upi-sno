@@ -1,0 +1,153 @@
+---
+# Validation tasks for static IP configuration
+- name: Validate DHCP configuration
+  block:
+    - name: Check if dhcp.enabled is defined
+      assert:
+        that:
+          - dhcp.enabled is defined
+        fail_msg: "dhcp.enabled must be defined. Set to true for DHCP mode or false for static IP mode."
+        success_msg: "DHCP mode configuration is valid"
+      when: dhcp.enabled is not defined
+
+    - name: Display installation mode
+      debug:
+        msg: "Installation mode: {{ 'DHCP' if (dhcp.enabled | default(true)) else 'Static IP (No DHCP)' }}"
+
+- name: Validate static IP mode requirements
+  when: not (dhcp.enabled | default(true))
+  block:
+    - name: Ensure required network parameters are defined for static IP
+      assert:
+        that:
+          - sno.ipaddr is defined
+          - dhcp.router is defined
+          - dhcp.netmask is defined
+          - helper.ipaddr is defined
+          - sno.macaddr is defined
+        fail_msg: "Static IP mode requires: sno.ipaddr, dhcp.router, dhcp.netmask, helper.ipaddr, and sno.macaddr"
+        success_msg: "Static IP configuration parameters are valid"
+
+    - name: Validate IP address format
+      assert:
+        that:
+          - sno.ipaddr | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+          - helper.ipaddr | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+          - dhcp.router | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+        fail_msg: "Invalid IP address format detected"
+        success_msg: "IP address formats are valid"
+
+    - name: Validate MAC address format
+      assert:
+        that:
+          - sno.macaddr | regex_search('^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$')
+        fail_msg: "Invalid MAC address format. Expected format: XX:XX:XX:XX:XX:XX"
+        success_msg: "MAC address format is valid"
+
+    - name: Warn about static IP mode
+      debug:
+        msg: 
+          - "=========================================="
+          - "STATIC IP MODE ENABLED"
+          - "=========================================="
+          - "DHCP services will be DISABLED"
+          - "Network configuration will be passed via kernel parameters"
+          - "Ensure the following:"
+          - "  - SNO IP ({{ sno.ipaddr }}) is not used by other systems"
+          - "  - Gateway ({{ dhcp.router }}) is reachable"
+          - "  - DNS server ({{ helper.ipaddr }}) is accessible"
+          - "  - Network interface name is correct"
+          - "=========================================="
+
+- name: Validate DHCP mode requirements
+  when: dhcp.enabled | default(true)
+  block:
+    - name: Ensure DHCP parameters are defined
+      assert:
+        that:
+          - sno.ipaddr is defined
+          - sno.macaddr is defined
+          - dhcp.router is defined
+          - dhcp.netmask is defined
+        fail_msg: "DHCP mode requires: sno.ipaddr, sno.macaddr, dhcp.router, and dhcp.netmask"
+        success_msg: "DHCP configuration parameters are valid"
+
+    - name: Info about DHCP mode
+      debug:
+        msg:
+          - "=========================================="
+          - "DHCP MODE ENABLED"
+          - "=========================================="
+          - "DHCP services will be configured on bastion"
+          - "PXE boot will use DHCP for network configuration"
+          - "=========================================="
+
+- name: Validate day2 worker configuration if defined
+  when: day2_worker is defined
+  block:
+    - name: Ensure day2 worker parameters are complete
+      assert:
+        that:
+          - day2_worker.ipaddr is defined
+          - day2_worker.macaddr is defined
+          - day2_worker.name is defined
+          - day2_worker.disk is defined
+        fail_msg: "Day2 worker requires: ipaddr, macaddr, name, and disk"
+        success_msg: "Day2 worker configuration is valid"
+
+    - name: Validate day2 worker IP format
+      assert:
+        that:
+          - day2_worker.ipaddr | regex_search('^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+        fail_msg: "Invalid day2 worker IP address format"
+        success_msg: "Day2 worker IP address format is valid"
+
+    - name: Validate day2 worker MAC format
+      assert:
+        that:
+          - day2_worker.macaddr | regex_search('^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$')
+        fail_msg: "Invalid day2 worker MAC address format"
+        success_msg: "Day2 worker MAC address format is valid"
+
+- name: Validate common requirements
+  block:
+    - name: Ensure DNS parameters are defined
+      assert:
+        that:
+          - dns.domain is defined
+          - dns.clusterid is defined
+          - dns.forwarder1 is defined
+        fail_msg: "DNS configuration requires: domain, clusterid, and forwarder1"
+        success_msg: "DNS configuration is valid"
+
+    - name: Ensure SNO node parameters are defined
+      assert:
+        that:
+          - sno.name is defined
+          - sno.disk is defined
+          - sno.pvmcec is defined
+          - sno.pvmlpar is defined
+        fail_msg: "SNO configuration requires: name, disk, pvmcec, and pvmlpar"
+        success_msg: "SNO node configuration is valid"
+
+    - name: Ensure HMC connection is defined
+      assert:
+        that:
+          - pvm_hmc is defined
+        fail_msg: "pvm_hmc must be defined for PowerVM management"
+        success_msg: "HMC connection configuration is valid"
+
+- name: Configuration validation complete
+  debug:
+    msg:
+      - "=========================================="
+      - "CONFIGURATION VALIDATION PASSED"
+      - "=========================================="
+      - "Mode: {{ 'DHCP' if (dhcp.enabled | default(true)) else 'Static IP' }}"
+      - "Cluster: {{ dns.clusterid }}.{{ dns.domain }}"
+      - "SNO IP: {{ sno.ipaddr }}"
+      - "Bastion IP: {{ helper.ipaddr }}"
+      - "Gateway: {{ dhcp.router }}"
+      - "=========================================="
+
+# Made with Bob

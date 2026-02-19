@@ -1,7 +1,7 @@
 ---
 # tasks file for netboot nodes
-- name: netboot sno node
-  when: day2_worker is not defined
+- name: netboot sno node with DHCP
+  when: day2_worker is not defined and (dhcp.enabled | default(true))
   shell: |
     orig_mac={{ sno.macaddr }}
     pvm_mac=`echo ${orig_mac//:}`
@@ -11,8 +11,19 @@
     remote_cmd="lpar_netboot -i -D -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ sno.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
     ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"
 
-- name: Netboot day2_worker if defined
-  when: day2_worker is defined
+- name: netboot sno node with static IP
+  when: day2_worker is not defined and not (dhcp.enabled | default(true))
+  shell: |
+    orig_mac={{ sno.macaddr }}
+    pvm_mac=`echo ${orig_mac//:}`
+    pvmcec={{ sno.pvmcec }}
+    pvmlpar={{ sno.pvmlpar }}
+    pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
+    remote_cmd="lpar_netboot -i -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ sno.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
+    ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"
+
+- name: Netboot day2_worker if defined with DHCP
+  when: day2_worker is defined and (dhcp.enabled | default(true))
   shell: |
     orig_mac={{ day2_worker.macaddr }}
     pvm_mac=`echo ${orig_mac//:}`
@@ -20,4 +31,15 @@
     pvmlpar={{ day2_worker.pvmlpar }}
     pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
     remote_cmd="lpar_netboot -i -D -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ day2_worker.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
+    ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"
+
+- name: Netboot day2_worker if defined with static IP
+  when: day2_worker is defined and not (dhcp.enabled | default(true))
+  shell: |
+    orig_mac={{ day2_worker.macaddr }}
+    pvm_mac=`echo ${orig_mac//:}`
+    pvmcec={{ day2_worker.pvmcec }}
+    pvmlpar={{ day2_worker.pvmlpar }}
+    pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
+    remote_cmd="lpar_netboot -i -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ day2_worker.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
     ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"

@@ -1,4 +1,8 @@
 ---
+- name: Set IP configuration for kernel boot parameters
+  set_fact:
+    ip_config: "{% if dhcp.enabled | default(true) %}ip=dhcp{% else %}ip={{ sno.ipaddr }}::{{ dhcp.router }}:{{ dhcp.netmask }}:{{ sno.name }}.{{ dns.clusterid }}.{{ dns.domain }}:{{ networkifacename }}:none nameserver={{ helper.ipaddr }}{% endif %}"
+
 - name: create grub2 block
   when: ignition == "sno.ign"
   blockinfile:
@@ -10,13 +14,18 @@
       timeout=1
       menuentry "CoreOS (BIOS)" {
          echo "Loading kernel"
-         linux "/rhcos/kernel" ip=dhcp rd.neednet=1 ignition.platform.id=metal ignition.firstboot {{ coreos_inst_url }} ignition.config.url={{ ignition_url }}/{{ ignition }}
+         linux "/rhcos/kernel" {{ ip_config }} rd.neednet=1 ignition.platform.id=metal ignition.firstboot {{ coreos_inst_url }} ignition.config.url={{ ignition_url }}/{{ ignition }}
 
          echo "Loading initrd"
          initrd  "/rhcos/initramfs.img"
       }
       fi
     dest: /var/lib/tftpboot/boot/grub2/grub.cfg
+
+- name: Set IP configuration for day2 worker kernel boot parameters
+  when: ignition == "day2-worker.ign"
+  set_fact:
+    ip_config_day2: "{% if dhcp.enabled | default(true) %}ip=dhcp{% else %}ip={{ day2_worker.ipaddr }}::{{ dhcp.router }}:{{ dhcp.netmask }}:{{ day2_worker.name }}.{{ dns.clusterid }}.{{ dns.domain }}:{{ networkifacename }}:none nameserver={{ helper.ipaddr }}{% endif %}"
 
 - name: create grub2 block for day2 worker
   when: ignition == "day2-worker.ign"
@@ -29,7 +38,7 @@
       timeout=1
       menuentry "CoreOS (BIOS)" {
          echo "Loading kernel"
-         linux "/rhcos/kernel" ip=dhcp rd.neednet=1 coreos.inst=yes coreos.inst.install_dev={{ mdisk }} {{ coreos_inst_url }} coreos.inst.ignition_url={{ ignition_url }}/{{ ignition }} ignition.config.url={{ ignition_url }}/first-boot-day2-ppc64le.ign
+         linux "/rhcos/kernel" {{ ip_config_day2 }} rd.neednet=1 coreos.inst=yes coreos.inst.install_dev={{ mdisk }} {{ coreos_inst_url }} coreos.inst.ignition_url={{ ignition_url }}/{{ ignition }} ignition.config.url={{ ignition_url }}/first-boot-day2-ppc64le.ign
 
          echo "Loading initrd"
          initrd  "/rhcos/initramfs.img"

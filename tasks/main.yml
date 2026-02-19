@@ -8,6 +8,9 @@
   - import_tasks: ../handlers/main.yml
 
   tasks:
+  - name: Validate configuration
+    include_tasks: validate_config.yaml
+
   - name: Clean up work directory
     file:
       path: "{{ workdir }}/"
