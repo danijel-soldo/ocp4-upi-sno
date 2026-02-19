@@ -38,7 +38,7 @@ For environments where DHCP servers are not permitted, the automation can be con
 - Network configuration is passed via kernel parameters during boot
 - The `lpar_netboot` command uses static IP parameters
 
-To enable static IP mode, set `dhcp.enabled: false` in your variables file.
+To enable static IP mode, set `dhcp.enabled: false` in your configuration file (e.g., `my-vars.yaml` based on `example-vars.yaml`).
 
 ## Bastion setup
 The bastion's `SELINUX` has to be set to `permissive` mode, otherwise ansible playbook will fail, to do it open file `/etc/selinux/config` and set `SELINUX=permissive`.
@@ -253,7 +253,14 @@ When DHCP is not available or not permitted in your environment, you can configu
 
 ### Configuration
 
-To enable static IP mode, add the following to your variables file (e.g., `example-vars.yaml`):
+To enable static IP mode, create your configuration file from the template and modify it:
+
+```bash
+cp example-vars.yaml my-vars.yaml
+# Edit my-vars.yaml and set dhcp.enabled: false
+```
+
+Add the following to your configuration file (`my-vars.yaml`):
 
 ```yaml
 dhcp:
@@ -265,14 +272,14 @@ dhcp:
 ### How It Works
 
 #### 1. DNS-Only Mode
-When `dhcp.enabled: false`, the dnsmasq configuration:
+When `dhcp.enabled: false` in your configuration file, the dnsmasq configuration (`templates/dnsmasq.conf.j2`):
 - Provides DNS services for cluster resolution
 - Enables TFTP for PXE boot
 - **Does NOT** provide DHCP services
 - **Does NOT** open DHCP port (67/udp) in firewall
 
 #### 2. Static IP Kernel Parameters
-The GRUB configuration passes static network configuration via kernel parameters:
+The GRUB configuration (`tasks/generate_grub.yaml`) passes static network configuration via kernel parameters:
 ```
 ip=<ipaddr>::<gateway>:<netmask>:<hostname>:<interface>:none nameserver=<dns_server>
 ```

@@ -605,7 +605,13 @@
             <div class="section">
                 <h2>⚙️ Configuration Examples</h2>
                 
-                <h3>DHCP Mode Configuration</h3>
+                <p>Create your configuration file from the template:</p>
+                <div class="code-block">
+<pre>cp example-vars.yaml my-vars.yaml
+# Edit my-vars.yaml with your settings</pre>
+                </div>
+                
+                <h3>DHCP Mode Configuration (my-vars.yaml)</h3>
                 <div class="code-block">
 <pre>---
 helper:
@@ -633,7 +639,7 @@ sno:
 pvm_hmc: hmc_user@hmc.host.ip</pre>
                 </div>
 
-                <h3>Static IP Mode Configuration</h3>
+                <h3>Static IP Mode Configuration (my-vars.yaml)</h3>
                 <div class="code-block">
 <pre>---
 helper:
@@ -680,10 +686,11 @@ pvm_hmc: hmc_user@hmc.host.ip</pre>
                 </div>
 
                 <h3>Step 1: Prepare Configuration</h3>
-                <p>Create your variables file based on the examples above:</p>
+                <p>Create your configuration file (<code>my-vars.yaml</code>) from the template (<code>example-vars.yaml</code>):</p>
                 <div class="code-block">
 <pre>cp example-vars.yaml my-vars.yaml
-# Edit my-vars.yaml with your infrastructure details</pre>
+# Edit my-vars.yaml with your infrastructure details
+# Set dhcp.enabled: false for static IP mode</pre>
                 </div>
 
                 <h3>Step 2: Run Installation</h3>

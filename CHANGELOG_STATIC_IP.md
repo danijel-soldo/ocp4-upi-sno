@@ -192,15 +192,15 @@ Note: The `-D` flag (DHCP request) is removed in static IP mode.
 ## Migration Path
 
 ### From DHCP to Static IP
-1. Update variables file: `dhcp.enabled: false`
-2. Re-run playbook
-3. Verify dnsmasq configuration
+1. Update your configuration file (e.g., `my-vars.yaml`): set `dhcp.enabled: false`
+2. Re-run playbook: `ansible-playbook tasks/main.yml -e @my-vars.yaml`
+3. Verify dnsmasq configuration: `cat /etc/dnsmasq.conf`
 4. Test PXE boot
 
 ### From Static IP to DHCP
-1. Update variables file: `dhcp.enabled: true`
-2. Re-run playbook
-3. Verify DHCP services start
+1. Update your configuration file (e.g., `my-vars.yaml`): set `dhcp.enabled: true`
+2. Re-run playbook: `ansible-playbook tasks/main.yml -e @my-vars.yaml`
+3. Verify DHCP services start: `systemctl status dnsmasq`
 4. Test PXE boot
 
 ## Known Limitations

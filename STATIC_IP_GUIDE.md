@@ -2,9 +2,11 @@
 
 ## Quick Start
 
-To install OpenShift SNO without DHCP, simply set `dhcp.enabled: false` in your variables file.
+To install OpenShift SNO without DHCP, simply set `dhcp.enabled: false` in your configuration file (e.g., `my-vars.yaml` or `example-vars.yaml`).
 
 ## Minimal Configuration Example
+
+Create or edit your variables file (e.g., `my-vars.yaml`):
 
 ```yaml
 ---
