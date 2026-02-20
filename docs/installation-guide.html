@@ -12,10 +12,10 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e88e5;
             min-height: 100vh;
             padding: 20px;
         }
@@ -30,7 +30,7 @@
         }
 
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1976d2;
             color: white;
             padding: 40px;
             text-align: center;
@@ -55,15 +55,15 @@
         }
 
         h2 {
-            color: #667eea;
+            color: #1976d2;
             font-size: 2em;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 3px solid #1976d2;
         }
 
         h3 {
-            color: #764ba2;
+            color: #1565c0;
             font-size: 1.5em;
             margin: 30px 0 15px 0;
         }
@@ -91,12 +91,12 @@
         }
 
         .mode-card.dhcp {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1976d2;
             color: white;
         }
 
         .mode-card.static {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #42a5f5;
             color: white;
         }
 
@@ -106,21 +106,13 @@
         }
 
         .mode-card ul {
-            list-style: none;
+            list-style: disc;
             margin-top: 15px;
+            padding-left: 20px;
         }
 
         .mode-card li {
             padding: 8px 0;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .mode-card li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
         }
 
         .diagram {
@@ -136,7 +128,7 @@
             font-weight: bold;
             font-size: 1.3em;
             margin-bottom: 20px;
-            color: #667eea;
+            color: #1976d2;
         }
 
         .infrastructure-grid {
@@ -150,32 +142,23 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #1976d2;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .infra-item h4 {
-            color: #667eea;
+            color: #1976d2;
             margin-bottom: 10px;
             font-size: 1.2em;
         }
 
         .infra-item ul {
-            list-style: none;
-            padding-left: 0;
+            list-style: disc;
+            padding-left: 20px;
         }
 
         .infra-item li {
             padding: 5px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .infra-item li:before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: #667eea;
         }
 
         .comparison-table {
@@ -186,7 +169,7 @@
         }
 
         .comparison-table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1976d2;
             color: white;
             padding: 15px;
             text-align: left;
@@ -249,7 +232,7 @@
 
         .network-box {
             background: white;
-            border: 3px solid #667eea;
+            border: 3px solid #1976d2;
             border-radius: 10px;
             padding: 20px;
             min-width: 200px;
@@ -258,18 +241,18 @@
         }
 
         .network-box.bastion {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1976d2;
             color: white;
         }
 
         .network-box.sno {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #42a5f5;
             color: white;
         }
 
         .network-arrow {
             font-size: 2em;
-            color: #667eea;
+            color: #1976d2;
         }
 
         .service-badge {
@@ -295,21 +278,12 @@
         }
 
         .checklist ul {
-            list-style: none;
+            list-style: disc;
+            padding-left: 20px;
         }
 
         .checklist li {
             padding: 8px 0;
-            padding-left: 30px;
-            position: relative;
-        }
-
-        .checklist li:before {
-            content: "☐";
-            position: absolute;
-            left: 0;
-            font-size: 1.5em;
-            color: #4caf50;
         }
 
         .file-viewer {
@@ -317,7 +291,7 @@
         }
 
         .file-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1976d2;
             color: white;
             padding: 15px 20px;
             border-radius: 10px 10px 0 0;
@@ -329,7 +303,7 @@
         }
 
         .file-header:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: #1565c0;
         }
 
         .file-header h4 {
@@ -401,29 +375,34 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🚀 OpenShift SNO on PowerVM</h1>
-            <p>Automated Installation Guide - DHCP & Static IP Modes</p>
-        </header>
+    <header>
+        <h1>OpenShift SNO on PowerVM</h1>
+        <p>Automated Installation Guide - DHCP & Static IP Modes</p>
+    </header>
+
+    <div style="background: #1565c0; padding: 15px 40px; display: flex; gap: 20px;">
+        <a href="installation-guide.html" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; background: #0d47a1;">Full Installation Guide</a>
+        <a href="quick-start.html" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; transition: background 0.3s;">Quick Start</a>
+    </div>
 
         <div class="content">
             <!-- Overview Section -->
             <div class="section">
-                <h2>📋 Overview</h2>
+                <h2>Overview</h2>
                 <p>This automation tool deploys Single Node OpenShift (SNO) on IBM PowerVM systems using Ansible. It supports two installation modes to accommodate different network environments.</p>
                 
                 <div class="highlight">
-                    <strong>🎯 Key Feature:</strong> Choose between DHCP-based or static IP installation depending on your infrastructure requirements and security policies.
+                    <strong>Key Feature:</strong> Choose between DHCP-based or static IP installation depending on your infrastructure requirements and security policies.
                 </div>
             </div>
 
             <!-- Installation Modes -->
             <div class="section">
-                <h2>🔧 Installation Modes</h2>
+                <h2>Installation Modes</h2>
                 
                 <div class="mode-selector">
                     <div class="mode-card dhcp">
-                        <h3>🌐 DHCP Mode (Default)</h3>
+                        <h3>DHCP Mode (Default)</h3>
                         <p>Traditional PXE boot with DHCP services</p>
                         <ul>
                             <li>Automatic IP assignment</li>
@@ -435,7 +414,7 @@
                     </div>
 
                     <div class="mode-card static">
-                        <h3>🔒 Static IP Mode</h3>
+                        <h3>Static IP Mode</h3>
                         <p>DNS-only mode for restricted environments</p>
                         <ul>
                             <li>No DHCP server required</li>
@@ -450,7 +429,7 @@
 
             <!-- Infrastructure Requirements -->
             <div class="section">
-                <h2>🏗️ Infrastructure Requirements</h2>
+                <h2>Infrastructure Requirements</h2>
                 
                 <div class="diagram">
                     <div class="diagram-title">Network Architecture</div>
@@ -485,12 +464,12 @@
                     </div>
                 </div>
 
-                <h3>📝 Information Checklist</h3>
+                <h3>Information Checklist</h3>
                 <p>Gather the following information from your infrastructure team before starting:</p>
 
                 <div class="infrastructure-grid">
                     <div class="infra-item">
-                        <h4>🖥️ PowerVM Details</h4>
+                        <h4>PowerVM Details</h4>
                         <ul>
                             <li>HMC hostname/IP</li>
                             <li>HMC username</li>
@@ -501,7 +480,7 @@
                     </div>
 
                     <div class="infra-item">
-                        <h4>🌐 Network Information</h4>
+                        <h4>Network Information</h4>
                         <ul>
                             <li>SNO IP address</li>
                             <li>Bastion IP address</li>
@@ -512,7 +491,7 @@
                     </div>
 
                     <div class="infra-item">
-                        <h4>🔌 Hardware Details</h4>
+                        <h4>Hardware Details</h4>
                         <ul>
                             <li>SNO MAC address</li>
                             <li>Network interface name</li>
@@ -522,7 +501,7 @@
                     </div>
 
                     <div class="infra-item">
-                        <h4>🔐 OpenShift Details</h4>
+                        <h4>OpenShift Details</h4>
                         <ul>
                             <li>Pull secret</li>
                             <li>SSH public key</li>
@@ -536,7 +515,7 @@
 
             <!-- Comparison Table -->
             <div class="section">
-                <h2>⚖️ Mode Comparison</h2>
+                <h2>Mode Comparison</h2>
                 
                 <table class="comparison-table">
                     <thead>
@@ -603,7 +582,7 @@
 
             <!-- Configuration Examples -->
             <div class="section">
-                <h2>⚙️ Configuration Examples</h2>
+                <h2>Configuration Examples</h2>
                 
                 <p>Create your configuration file from the template:</p>
                 <div class="code-block">
@@ -670,7 +649,7 @@ pvm_hmc: hmc_user@hmc.host.ip</pre>
 
             <!-- Installation Steps -->
             <div class="section">
-                <h2>🚀 Installation Steps</h2>
+                <h2>Installation Steps</h2>
                 
                 <div class="checklist">
                     <h4>Pre-Installation Checklist</h4>
@@ -701,19 +680,19 @@ pvm_hmc: hmc_user@hmc.host.ip</pre>
                 <h3>Step 3: Monitor Progress</h3>
                 <p>The automation will:</p>
                 <ul style="margin-left: 40px; margin-top: 10px;">
-                    <li>✓ Validate your configuration</li>
-                    <li>✓ Setup required services (DNS, HTTP, TFTP, DHCP*)</li>
-                    <li>✓ Download OpenShift and RHCOS files</li>
-                    <li>✓ Generate ignition files</li>
-                    <li>✓ Configure PXE boot</li>
-                    <li>✓ Initiate network boot</li>
-                    <li>✓ Monitor installation completion</li>
+                    <li>Validate your configuration</li>
+                    <li>Setup required services (DNS, HTTP, TFTP, DHCP*)</li>
+                    <li>Download OpenShift and RHCOS files</li>
+                    <li>Generate ignition files</li>
+                    <li>Configure PXE boot</li>
+                    <li>Initiate network boot</li>
+                    <li>Monitor installation completion</li>
                 </ul>
             </div>
 
             <!-- Troubleshooting -->
             <div class="section">
-                <h2>🔍 Troubleshooting</h2>
+                <h2>Troubleshooting</h2>
                 
                 <h3>Common Issues</h3>
                 
@@ -766,13 +745,13 @@ ansible-playbook tasks/main.yml -e @my-vars.yaml --check</pre>
 
             <!-- Viewable Files -->
             <div class="section">
-                <h2>📄 View Installation Files</h2>
+                <h2>View Installation Files</h2>
                 <p>Click on any file below to view its contents. These are the key files used during the installation process.</p>
 
                 <!-- Validation Config -->
                 <div class="file-viewer">
                     <div class="file-header" onclick="toggleFile('validate-config')">
-                        <h4>📋 tasks/validate_config.yaml - Configuration Validation</h4>
+                        <h4>tasks/validate_config.yaml - Configuration Validation</h4>
                         <span class="file-toggle" id="toggle-validate-config">▼</span>
                     </div>
                     <div class="file-content" id="validate-config">
@@ -832,7 +811,7 @@ ansible-playbook tasks/main.yml -e @my-vars.yaml --check</pre>
                 <!-- dnsmasq Template -->
                 <div class="file-viewer">
                     <div class="file-header" onclick="toggleFile('dnsmasq-template')">
-                        <h4>🌐 templates/dnsmasq.conf.j2 - DNS/DHCP Configuration</h4>
+                        <h4>templates/dnsmasq.conf.j2 - DNS/DHCP Configuration</h4>
                         <span class="file-toggle" id="toggle-dnsmasq-template">▼</span>
                     </div>
                     <div class="file-content" id="dnsmasq-template">
@@ -898,7 +877,7 @@ tftp-root=/var/lib/tftpboot
                 <!-- GRUB Generation -->
                 <div class="file-viewer">
                     <div class="file-header" onclick="toggleFile('grub-generation')">
-                        <h4>⚙️ tasks/generate_grub.yaml - Boot Configuration</h4>
+                        <h4>tasks/generate_grub.yaml - Boot Configuration</h4>
                         <span class="file-toggle" id="toggle-grub-generation">▼</span>
                     </div>
                     <div class="file-content" id="grub-generation">
@@ -936,13 +915,13 @@ tftp-root=/var/lib/tftpboot
                 <!-- Test Script -->
                 <div class="file-viewer">
                     <div class="file-header" onclick="toggleFile('test-script')">
-                        <h4>🧪 tests/test_templates.sh - Validation Test Suite</h4>
+                        <h4>tests/test_templates.sh - Validation Test Suite</h4>
                         <span class="file-toggle" id="toggle-test-script">▼</span>
                     </div>
                     <div class="file-content" id="test-script">
                         <div class="file-meta">
                             <strong>Purpose:</strong> Shell-based test suite to validate static IP feature<br>
-                            <strong>Tests:</strong> 15 comprehensive checks (all passing ✅)
+                            <strong>Tests:</strong> 15 comprehensive checks (all passing)
                         </div>
                         <pre>#!/bin/bash
 # Quick shell-based tests for static IP feature
@@ -972,10 +951,10 @@ echo "=========================================="
 # Test 1: Check if templates exist
 echo "TEST 1: Checking template files exist..."
 if [ -f "$PROJECT_ROOT/templates/dnsmasq.conf.j2" ]; then
-    echo -e "${GREEN}✅ PASSED${NC}: dnsmasq.conf.j2 exists"
+    echo -e "${GREEN}PASSED${NC}: dnsmasq.conf.j2 exists"
     PASSED=$((PASSED + 1))
 else
-    echo -e "${RED}❌ FAILED${NC}: dnsmasq.conf.j2 missing"
+    echo -e "${RED}FAILED${NC}: dnsmasq.conf.j2 missing"
     FAILED=$((FAILED + 1))
 fi
 TOTAL=$((TOTAL + 1))
@@ -994,7 +973,7 @@ echo "=========================================="</pre>
                 <!-- Example Variables -->
                 <div class="file-viewer">
                     <div class="file-header" onclick="toggleFile('example-vars')">
-                        <h4>📝 example-vars.yaml - Configuration Template</h4>
+                        <h4>example-vars.yaml - Configuration Template</h4>
                         <span class="file-toggle" id="toggle-example-vars">▼</span>
                     </div>
                     <div class="file-content" id="example-vars">

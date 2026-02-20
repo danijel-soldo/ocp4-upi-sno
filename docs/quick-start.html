@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start Guide - OpenShift SNO on PowerVM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #1e88e5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: #1976d2;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #1565c0;
+            padding: 15px 40px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav a:hover {
+            background: #0d47a1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #1976d2;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 15px;
+        }
+
+        .step h2 {
+            color: #1976d2;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .step h3 {
+            color: #1565c0;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        .field-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .field-table th {
+            background: #1976d2;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .field-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .field-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .field-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .field-name {
+            font-family: 'Courier New', monospace;
+            color: #1976d2;
+            font-weight: bold;
+        }
+
+        .required {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .optional {
+            color: #757575;
+            font-style: italic;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .example {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Quick Start Guide</h1>
+            <p>Step-by-Step Installation After Cloning the Repository</p>
+        </header>
+
+        <div class="nav">
+            <a href="installation-guide.html">Full Installation Guide</a>
+            <a href="quick-start.html">Quick Start</a>
+        </div>
+
+        <div class="content">
+            <div class="info">
+                <strong>Prerequisites:</strong> You have already cloned this repository to your bastion node and are ready to configure and run the installation.
+            </div>
+
+            <!-- Step 1: Navigate to Directory -->
+            <div class="step">
+                <h2><span class="step-number">1</span>Navigate to Repository Directory</h2>
+                <p>After cloning, navigate to the repository directory:</p>
+                <div class="code-block">
+<pre>cd ocp4-upi-sno</pre>
+                </div>
+            </div>
+
+            <!-- Step 2: Create Configuration File -->
+            <div class="step">
+                <h2><span class="step-number">2</span>Create Your Configuration File</h2>
+                <p>Copy the example configuration file to create your own:</p>
+                <div class="code-block">
+<pre>cp example-vars.yaml my-vars.yaml</pre>
+                </div>
+                <div class="warning">
+                    <strong>Important:</strong> Do NOT edit <code>example-vars.yaml</code> directly. Always work with your own copy (<code>my-vars.yaml</code>).
+                </div>
+            </div>
+
+            <!-- Step 3: Edit Configuration -->
+            <div class="step">
+                <h2><span class="step-number">3</span>Edit Configuration File</h2>
+                <p>Open your configuration file for editing:</p>
+                <div class="code-block">
+<pre>vi my-vars.yaml
+# or use your preferred editor: nano, vim, etc.</pre>
+                </div>
+
+                <h3>Required Fields to Configure</h3>
+                <p>You must configure the following fields in <code>my-vars.yaml</code>:</p>
+
+                <table class="field-table">
+                    <thead>
+                        <tr>
+                            <th>Field Path</th>
+                            <th>Description</th>
+                            <th>Example Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="field-name">helper.ipaddr</span> <span class="required">*</span></td>
+                            <td>IP address of your bastion/helper node</td>
+                            <td>192.168.79.2</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dns.domain</span> <span class="required">*</span></td>
+                            <td>Your domain name</td>
+                            <td>cloud.lab</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dns.clusterid</span> <span class="required">*</span></td>
+                            <td>OpenShift cluster ID/name</td>
+                            <td>sno</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dns.forwarder1</span> <span class="required">*</span></td>
+                            <td>Primary DNS forwarder</td>
+                            <td>9.9.9.9</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dhcp.router</span> <span class="required">*</span></td>
+                            <td>Network gateway IP address</td>
+                            <td>192.168.79.2</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dhcp.netmask</span> <span class="required">*</span></td>
+                            <td>Network subnet mask</td>
+                            <td>255.255.255.0</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dhcp.enabled</span> <span class="required">*</span></td>
+                            <td>Enable DHCP (true) or use static IP only (false)</td>
+                            <td>true or false</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">sno.name</span> <span class="required">*</span></td>
+                            <td>Hostname for SNO node</td>
+                            <td>sno</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">sno.macaddr</span> <span class="required">*</span></td>
+                            <td>MAC address of SNO node (format: XX:XX:XX:XX:XX:XX)</td>
+                            <td>fa:4e:86:23:37:20</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">sno.ipaddr</span> <span class="required">*</span></td>
+                            <td>IP address for SNO node</td>
+                            <td>192.168.79.10</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">sno.disk</span> <span class="required">*</span></td>
+                            <td>Installation disk path on SNO node</td>
+                            <td>/dev/sda</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">sno.pvmcec</span> <span class="required">*</span></td>
+                            <td>PowerVM CEC (system) name</td>
+                            <td>Server-9080-HEX-SN785EDA8</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">sno.pvmlpar</span> <span class="required">*</span></td>
+                            <td>PowerVM LPAR name</td>
+                            <td>cp4d-3-worker-1</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">pvm_hmc</span> <span class="required">*</span></td>
+                            <td>HMC connection string (user@hostname)</td>
+                            <td>hmc_user@192.168.1.100</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Optional Fields</h3>
+                <table class="field-table">
+                    <thead>
+                        <tr>
+                            <th>Field Path</th>
+                            <th>Description</th>
+                            <th>Default Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="field-name">helper.name</span></td>
+                            <td>Hostname for bastion node</td>
+                            <td>helper</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">dns.forwarder2</span></td>
+                            <td>Secondary DNS forwarder</td>
+                            <td>8.8.4.4</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">ocp_client_tag</span></td>
+                            <td>OpenShift version to install</td>
+                            <td>latest-4.13</td>
+                        </tr>
+                        <tr>
+                            <td><span class="field-name">rhcos_rhcos_base</span></td>
+                            <td>RHCOS version base</td>
+                            <td>4.13</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="example">
+                    <div class="example-title">Example Configuration (DHCP Mode):</div>
+                    <div class="code-block">
+<pre>---
+helper:
+  name: "helper"
+  ipaddr: "192.168.79.2"
+
+dns:
+  domain: "cloud.lab"
+  clusterid: "sno"
+  forwarder1: "9.9.9.9"
+  forwarder2: "8.8.4.4"
+
+dhcp:
+  router: "192.168.79.2"
+  netmask: "255.255.255.0"
+  enabled: true  # DHCP mode
+
+sno:
+  name: sno
+  macaddr: "fa:4e:86:23:37:20"
+  ipaddr: "192.168.79.10"
+  disk: "/dev/sda"
+  pvmcec: Server-9080-HEX-SN785EDA8
+  pvmlpar: cp4d-3-worker-1
+
+pvm_hmc: hmc_user@192.168.1.100</pre>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="example-title">Example Configuration (Static IP Mode):</div>
+                    <div class="code-block">
+<pre>---
+helper:
+  name: "helper"
+  ipaddr: "192.168.79.2"
+
+dns:
+  domain: "cloud.lab"
+  clusterid: "sno"
+  forwarder1: "9.9.9.9"
+  forwarder2: "8.8.4.4"
+
+dhcp:
+  router: "192.168.79.2"
+  netmask: "255.255.255.0"
+  enabled: false  # Static IP mode - no DHCP
+
+sno:
+  name: sno
+  macaddr: "fa:4e:86:23:37:20"
+  ipaddr: "192.168.79.10"
+  disk: "/dev/sda"
+  pvmcec: Server-9080-HEX-SN785EDA8
+  pvmlpar: cp4d-3-worker-1
+
+pvm_hmc: hmc_user@192.168.1.100</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Setup SSH Access -->
+            <div class="step">
+                <h2><span class="step-number">4</span>Setup SSH Access to HMC</h2>
+                <p>Ensure your bastion node can SSH to the HMC without password:</p>
+
+                <h3>Generate SSH Key (if not already done)</h3>
+                <div class="code-block">
+<pre>ssh-keygen -t rsa -b 4096
+# Press Enter to accept defaults</pre>
+                </div>
+
+                <h3>Copy Public Key to HMC</h3>
+                <div class="code-block">
+<pre># Display your public key
+cat ~/.ssh/id_rsa.pub
+
+# On HMC, add the key (replace with your actual key content)
+mkauthkeys -a "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ..."</pre>
+                </div>
+
+                <h3>Test SSH Connection</h3>
+                <div class="code-block">
+<pre>ssh hmc_user@hmc_hostname
+# Should connect without password prompt</pre>
+                </div>
+            </div>
+
+            <!-- Step 5: Setup OpenShift Pull Secret -->
+            <div class="step">
+                <h2><span class="step-number">5</span>Setup OpenShift Pull Secret</h2>
+                <p>Download your pull secret from Red Hat and save it:</p>
+
+                <ol>
+                    <li>Go to <a href="https://console.redhat.com/openshift/install/pull-secret" target="_blank">https://console.redhat.com/openshift/install/pull-secret</a></li>
+                    <li>Download your pull secret</li>
+                    <li>Save it to your bastion node:</li>
+                </ol>
+
+                <div class="code-block">
+<pre>mkdir -p ~/.openshift
+vi ~/.openshift/pull-secret
+# Paste your pull secret content and save</pre>
+                </div>
+
+                <div class="warning">
+                    <strong>Important:</strong> The pull secret must be valid JSON format. Do not add extra spaces or line breaks.
+                </div>
+            </div>
+
+            <!-- Step 6: Verify Prerequisites -->
+            <div class="step">
+                <h2><span class="step-number">6</span>Verify Prerequisites</h2>
+                <p>Before running the installation, verify:</p>
+
+                <div class="code-block">
+<pre># Check SELinux is permissive
+getenforce
+# Should show: Permissive
+
+# If not, set it:
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+
+# Verify Ansible is installed
+ansible --version
+
+# Verify SSH key exists
+ls -la ~/.ssh/id_rsa.pub
+
+# Verify pull secret exists
+cat ~/.openshift/pull-secret
+
+# Test HMC connection
+ssh hmc_user@hmc_hostname "echo Connection successful"</pre>
+                </div>
+            </div>
+
+            <!-- Step 7: Run Installation -->
+            <div class="step">
+                <h2><span class="step-number">7</span>Run the Installation</h2>
+                <p>Execute the Ansible playbook with your configuration:</p>
+
+                <div class="code-block">
+<pre>ansible-playbook tasks/main.yml -e @my-vars.yaml</pre>
+                </div>
+
+                <div class="info">
+                    <strong>What happens during installation:</strong>
+                    <ul>
+                        <li>Configuration validation</li>
+                        <li>Service setup (DNS, HTTP, TFTP, DHCP if enabled)</li>
+                        <li>Download OpenShift and RHCOS files</li>
+                        <li>Generate ignition configuration</li>
+                        <li>Configure PXE boot</li>
+                        <li>Initiate network boot on LPAR</li>
+                        <li>Monitor installation progress</li>
+                    </ul>
+                </div>
+
+                <div class="warning">
+                    <strong>Note:</strong> The installation process can take 30-60 minutes depending on network speed and hardware.
+                </div>
+            </div>
+
+            <!-- Step 8: Monitor Installation -->
+            <div class="step">
+                <h2><span class="step-number">8</span>Monitor Installation Progress</h2>
+                <p>Watch the installation progress:</p>
+
+                <div class="code-block">
+<pre># Watch the Ansible output for progress
+
+# In another terminal, monitor the bootstrap process
+tail -f ~/ocp4-sno/.openshift_install.log
+
+# Check cluster operators status (after bootstrap completes)
+export KUBECONFIG=~/ocp4-sno/auth/kubeconfig
+oc get co
+
+# Watch nodes
+oc get nodes -w</pre>
+                </div>
+            </div>
+
+            <!-- Step 9: Access Cluster -->
+            <div class="step">
+                <h2><span class="step-number">9</span>Access Your Cluster</h2>
+                <p>Once installation completes, access your cluster:</p>
+
+                <div class="code-block">
+<pre># Set kubeconfig
+export KUBECONFIG=~/ocp4-sno/auth/kubeconfig
+
+# Get cluster info
+oc cluster-info
+
+# Get console URL
+oc whoami --show-console
+
+# Get admin password
+cat ~/ocp4-sno/auth/kubeadmin-password</pre>
+                </div>
+
+                <div class="success">
+                    <strong>Success!</strong> Your OpenShift Single Node cluster is now running. Access the web console using the URL and credentials above.
+                </div>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="step">
+                <h2><span class="step-number">10</span>Troubleshooting</h2>
+                
+                <h3>Common Issues and Solutions</h3>
+
+                <div class="example">
+                    <div class="example-title">Issue: Configuration validation fails</div>
+                    <strong>Solution:</strong>
+                    <ul>
+                        <li>Check all required fields are filled in <code>my-vars.yaml</code></li>
+                        <li>Verify IP addresses are in correct format (X.X.X.X)</li>
+                        <li>Verify MAC address format (XX:XX:XX:XX:XX:XX)</li>
+                        <li>Ensure <code>dhcp.enabled</code> is set to <code>true</code> or <code>false</code></li>
+                    </ul>
+                </div>
+
+                <div class="example">
+                    <div class="example-title">Issue: Cannot connect to HMC</div>
+                    <strong>Solution:</strong>
+                    <ul>
+                        <li>Verify SSH key is added to HMC: <code>lsauthkeys</code> on HMC</li>
+                        <li>Test connection: <code>ssh hmc_user@hmc_hostname</code></li>
+                        <li>Check firewall rules between bastion and HMC</li>
+                    </ul>
+                </div>
+
+                <div class="example">
+                    <div class="example-title">Issue: LPAR doesn't boot</div>
+                    <strong>Solution:</strong>
+                    <ul>
+                        <li>Verify LPAR name and CEC name are correct</li>
+                        <li>Check LPAR profile exists</li>
+                        <li>Verify network connectivity between LPAR and bastion</li>
+                        <li>Check TFTP service is running: <code>systemctl status dnsmasq</code></li>
+                    </ul>
+                </div>
+
+                <div class="example">
+                    <div class="example-title">Issue: Installation hangs</div>
+                    <strong>Solution:</strong>
+                    <ul>
+                        <li>Check installation logs: <code>tail -f ~/ocp4-sno/.openshift_install.log</code></li>
+                        <li>Verify DNS resolution: <code>nslookup api.sno.cloud.lab</code></li>
+                        <li>Check services: <code>systemctl status dnsmasq httpd</code></li>
+                        <li>Verify pull secret is valid JSON</li>
+                    </ul>
+                </div>
+
+                <h3>Log Files</h3>
+                <div class="code-block">
+<pre># Ansible playbook output (on screen during run)
+
+# OpenShift installation log
+~/ocp4-sno/.openshift_install.log
+
+# dnsmasq logs
+journalctl -u dnsmasq -f
+
+# httpd logs
+journalctl -u httpd -f
+
+# System logs
+journalctl -xe</pre>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="step">
+                <h2>Summary</h2>
+                <p>You have completed the quick start guide. Here's what you did:</p>
+                <ol>
+                    <li>Navigated to the repository directory</li>
+                    <li>Created your configuration file (<code>my-vars.yaml</code>)</li>
+                    <li>Configured all required fields</li>
+                    <li>Setup SSH access to HMC</li>
+                    <li>Setup OpenShift pull secret</li>
+                    <li>Verified prerequisites</li>
+                    <li>Ran the installation</li>
+                    <li>Monitored progress</li>
+                    <li>Accessed your cluster</li>
+                </ol>
+
+                <div class="info">
+                    <strong>Next Steps:</strong>
+                    <ul>
+                        <li>Configure storage (if needed)</li>
+                        <li>Install operators</li>
+                        <li>Deploy applications</li>
+                        <li>Setup monitoring and logging</li>
+                    </ul>
+                </div>
+
+                <div class="info">
+                    <strong>Additional Resources:</strong>
+                    <ul>
+                        <li><a href="installation-guide.html">Full Installation Guide</a> - Detailed documentation with architecture diagrams</li>
+                        <li><a href="../README.md">README.md</a> - Project overview and additional information</li>
+                        <li><a href="../STATIC_IP_GUIDE.md">STATIC_IP_GUIDE.md</a> - Detailed static IP configuration guide</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
