@@ -11,7 +11,10 @@
         - "/var/www/html/install/rootfs.img"
         - "/var/lib/tftpboot/rhcos/initramfs.img"
         - "/var/lib/tftpboot/rhcos/kernel"
-    when: force_ocp_download
+        - "/usr/local/bin/oc"
+        - "/usr/local/bin/kubectl"
+        - "/usr/local/bin/openshift-install"
+    when: force_ocp_download | default(false)
 
   - name: Check if RHCOS ISO already exists
     stat:
