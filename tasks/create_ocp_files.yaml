@@ -33,7 +33,7 @@
 
   - name: Create ignition file for sno
     shell: |
-      OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE={{ release_image_override }} openshift-install create single-node-ignition-config --log-level {{ log_level }}
+      OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE={{ release_image_override }} /usr/local/bin/openshift-install create single-node-ignition-config --log-level {{ log_level }}
       mv bootstrap-in-place-for-live-iso.ign sno.ign
     args:
       chdir: "{{ workdir }}"
