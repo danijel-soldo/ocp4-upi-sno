@@ -21,7 +21,7 @@
   - name: Downloading OCP4 rhcos-live.iso
     when:
       - rhcos_iso is defined
-      - not rhcos_iso_stat.stat.exists or force_ocp_download
+      - not rhcos_iso_stat.stat.exists or (force_ocp_download | default(false))
     get_url:
         url: "{{ rhcos_iso }}"
         dest: "/usr/local/src/rhcos-live-{{ rhcos_arch }}.iso"
@@ -34,7 +34,7 @@
     register: initramfs_stat
 
   - name: Downloading OCP4 installer initramfs
-    when: not initramfs_stat.stat.exists or force_ocp_download
+    when: not initramfs_stat.stat.exists or (force_ocp_download | default(false))
     get_url:
       url: "{{ rhcos_initramfs }}"
       dest: /var/lib/tftpboot/rhcos/initramfs.img
@@ -47,7 +47,7 @@
     register: kernel_stat
 
   - name: Downloading OCP4 installer kernel
-    when: not kernel_stat.stat.exists or force_ocp_download
+    when: not kernel_stat.stat.exists or (force_ocp_download | default(false))
     get_url:
       url: "{{ rhcos_kernel }}"
       dest: /var/lib/tftpboot/rhcos/kernel
@@ -60,7 +60,7 @@
     register: rootfs_stat
 
   - name: Downloading OCP4 installer rootfs
-    when: not rootfs_stat.stat.exists or force_ocp_download
+    when: not rootfs_stat.stat.exists or (force_ocp_download | default(false))
     get_url:
       url: "{{ rhcos_rootfs }}"
       dest: /var/www/html/install/rootfs.img
@@ -81,7 +81,7 @@
       register: oc_command_stat
 
     - name: Downloading OCP4 client
-      when: not ocp_client_stat.stat.exists or force_ocp_download
+      when: not ocp_client_stat.stat.exists or (force_ocp_download | default(false))
       get_url:
         url: "{{ ocp_client }}"
         dest: /usr/local/src/openshift-client-linux.tar.gz
@@ -108,7 +108,7 @@
       register: openshift_install_command_stat
 
     - name: Downloading OCP4 Installer
-      when: not ocp_installer_stat.stat.exists or force_ocp_download
+      when: not ocp_installer_stat.stat.exists or (force_ocp_download | default(false))
       get_url:
         url: "{{ ocp_installer }}"
         dest: /usr/local/src/openshift-install-linux.tar.gz
