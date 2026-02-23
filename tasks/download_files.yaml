@@ -13,40 +13,82 @@
         - "/var/lib/tftpboot/rhcos/kernel"
     when: force_ocp_download
 
+  - name: Check if RHCOS ISO already exists
+    stat:
+      path: "/usr/local/src/rhcos-live-{{ rhcos_arch }}.iso"
+    register: rhcos_iso_stat
+
   - name: Downloading OCP4 rhcos-live.iso
-    when: rhcos_iso is defined
+    when:
+      - rhcos_iso is defined
+      - not rhcos_iso_stat.stat.exists or force_ocp_download
     get_url:
         url: "{{ rhcos_iso }}"
         dest: "/usr/local/src/rhcos-live-{{ rhcos_arch }}.iso"
         mode: 0555
+        force: no
+
+  - name: Check if initramfs already exists
+    stat:
+      path: /var/lib/tftpboot/rhcos/initramfs.img
+    register: initramfs_stat
 
   - name: Downloading OCP4 installer initramfs
+    when: not initramfs_stat.stat.exists or force_ocp_download
     get_url:
       url: "{{ rhcos_initramfs }}"
       dest: /var/lib/tftpboot/rhcos/initramfs.img
       mode: 0555
+      force: no
+
+  - name: Check if kernel already exists
+    stat:
+      path: /var/lib/tftpboot/rhcos/kernel
+    register: kernel_stat
 
   - name: Downloading OCP4 installer kernel
+    when: not kernel_stat.stat.exists or force_ocp_download
     get_url:
       url: "{{ rhcos_kernel }}"
       dest: /var/lib/tftpboot/rhcos/kernel
       mode: 0555
+      force: no
+
+  - name: Check if rootfs already exists
+    stat:
+      path: /var/www/html/install/rootfs.img
+    register: rootfs_stat
 
   - name: Downloading OCP4 installer rootfs
+    when: not rootfs_stat.stat.exists or force_ocp_download
     get_url:
       url: "{{ rhcos_rootfs }}"
       dest: /var/www/html/install/rootfs.img
       mode: 0555
+      force: no
 
   - name: Preparing OCP client
     when: ocp_client is defined
     block:
+    - name: Check if OCP client tarball already exists
+      stat:
+        path: /usr/local/src/openshift-client-linux.tar.gz
+      register: ocp_client_stat
+
+    - name: Check if oc command already exists
+      stat:
+        path: /usr/local/bin/oc
+      register: oc_command_stat
+
     - name: Downloading OCP4 client
+      when: not ocp_client_stat.stat.exists or force_ocp_download
       get_url:
         url: "{{ ocp_client }}"
         dest: /usr/local/src/openshift-client-linux.tar.gz
+        force: no
 
     - name: Unarchiving OCP4 client
+      when: not oc_command_stat.stat.exists
       unarchive:
         src: /usr/local/src/openshift-client-linux.tar.gz
         dest: /usr/local/bin
@@ -55,12 +97,25 @@
   - name: Preparing OCP installer
     when: ocp_installer is defined
     block:
+    - name: Check if OCP installer tarball already exists
+      stat:
+        path: /usr/local/src/openshift-install-linux.tar.gz
+      register: ocp_installer_stat
+
+    - name: Check if openshift-install command already exists
+      stat:
+        path: /usr/local/bin/openshift-install
+      register: openshift_install_command_stat
+
     - name: Downloading OCP4 Installer
+      when: not ocp_installer_stat.stat.exists or force_ocp_download
       get_url:
         url: "{{ ocp_installer }}"
         dest: /usr/local/src/openshift-install-linux.tar.gz
+        force: no
 
     - name: Unarchiving OCP4 Installer
+      when: not openshift_install_command_stat.stat.exists
       unarchive:
         src: /usr/local/src/openshift-install-linux.tar.gz
         dest: /usr/local/bin
