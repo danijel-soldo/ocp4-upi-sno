@@ -39,8 +39,23 @@ print_info() {
 # Load helper IP from vars file
 VARS_FILE="${1:-my-vars.yaml}"
 if [ -f "$VARS_FILE" ]; then
-    HELPER_IP=$(grep -A10 "^dhcp:" "$VARS_FILE" | grep "router:" | awk '{print $2}' | tr -d '"')
-else
+    # Helper IP is the DNS server IP (dhcp.dns), not the router/gateway
+    HELPER_IP=$(grep -A10 "^dhcp:" "$VARS_FILE" | grep "dns:" | awk '{print $2}' | tr -d '"')
+    # If dns is not set, try to get from sno.ipaddr - 1 (common pattern)
+    if [ -z "$HELPER_IP" ]; then
+        SNO_IP=$(grep -A5 "^sno:" "$VARS_FILE" | grep "ipaddr:" | awk '{print $2}' | tr -d '"')
+        # Extract last octet and subtract 1 for helper IP
+        if [ -n "$SNO_IP" ]; then
+            BASE_IP=$(echo "$SNO_IP" | cut -d. -f1-3)
+            LAST_OCTET=$(echo "$SNO_IP" | cut -d. -f4)
+            HELPER_LAST=$((LAST_OCTET - 1))
+            HELPER_IP="${BASE_IP}.${HELPER_LAST}"
+        fi
+    fi
+fi
+
+# Default if still not found
+if [ -z "$HELPER_IP" ]; then
     HELPER_IP="129.40.98.129"
 fi
 
