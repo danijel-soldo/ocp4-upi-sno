@@ -68,10 +68,13 @@
     with_items:
       - "{{ services }}"
 
-  - name: Set the local resolv.conf file
-    template:
-      src: ../templates/resolv.conf.j2
-      dest: /etc/resolv.conf
+  # DISABLED: This task overwrites /etc/resolv.conf and breaks external DNS resolution
+  # The helper node needs to use system DNS to resolve HMC and other external hosts
+  # If you need to manage resolv.conf, do it manually or via NetworkManager
+  # - name: Set the local resolv.conf file
+  #   template:
+  #     src: ../templates/resolv.conf.j2
+  #     dest: /etc/resolv.conf
 
   # - name: Netboot all the LPARs
   #   include_tasks: netboot.yaml

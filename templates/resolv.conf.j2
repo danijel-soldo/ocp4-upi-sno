@@ -2,6 +2,9 @@
 search {{ dns.domain | lower }}
 {% if dhcp.dns is defined and dhcp.dns != "" %}
 nameserver {{ dhcp.dns }}
-{% else %}
-nameserver 127.0.0.1
 {% endif %}
+{% if dhcp.router is defined and dhcp.router != "" %}
+nameserver {{ dhcp.router }}
+{% endif %}
+# Local dnsmasq for cluster DNS
+nameserver 127.0.0.1
