@@ -83,11 +83,14 @@
     with_items:
       - "{{ services }}"
 
-  - name: Set the local resolv.conf file
-    become: true
-    template:
-      src: ../templates/resolv.conf.j2
-      dest: /etc/resolv.conf
+  # DISABLED: This task overwrites /etc/resolv.conf and breaks external DNS resolution
+  # The helper node needs to use system DNS to resolve HMC and other external hosts
+  # Configure DNS via NetworkManager or manually, then make resolv.conf immutable
+  # - name: Set the local resolv.conf file
+  #   become: true
+  #   template:
+  #     src: ../templates/resolv.conf.j2
+  #     dest: /etc/resolv.conf
 
   - name: create ocp install files
     include_tasks: create_ocp_files.yaml
