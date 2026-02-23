@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boot Methods Guide - OpenShift SNO on PowerVM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #1e88e5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: #1976d2;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: #1565c0;
+            padding: 15px 40px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav a:hover {
+            background: #0d47a1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .method-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #1976d2;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .method-card h2 {
+            color: #1976d2;
+            font-size: 2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+
+        .badge-recommended {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-advanced {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-manual {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .pros {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .cons {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pros li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .cons li:before {
+            content: "✗ ";
+            color: #f44336;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        .steps {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .steps ol {
+            margin-left: 20px;
+        }
+
+        .steps li {
+            margin: 10px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .comparison-table th {
+            background: #1976d2;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rating {
+            display: inline-block;
+        }
+
+        .rating-high {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .rating-medium {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .rating-low {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .rating-none {
+            color: #9e9e9e;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .section-title {
+            color: #1976d2;
+            font-size: 1.8em;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Boot Methods Guide</h1>
+            <p>Comprehensive Guide to PowerVM LPAR Boot Options for OpenShift SNO</p>
+        </header>
+
+        <div class="nav">
+            <a href="installation-guide.html">Full Installation Guide</a>
+            <a href="quick-start.html">Quick Start</a>
+            <a href="boot-methods.html">Boot Methods</a>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <h3>Understanding Boot Methods</h3>
+                <p>This guide explains different methods to boot PowerVM LPARs for OpenShift SNO installation. Each method has different requirements for DHCP/BOOTP, automation level, and complexity. Choose the method that best fits your environment and requirements.</p>
+            </div>
+
+            <h2 class="section-title">Available Boot Methods</h2>
+
+            <!-- Method 1: Network Boot with Minimal BOOTP -->
+            <div class="method-card">
+                <h2>
+                    Method 1: Network Boot with Minimal BOOTP
+                    <span class="method-badge badge-recommended">RECOMMENDED</span>
+                </h2>
+                
+                <p><strong>Description:</strong> Automated network boot using <code>lpar_netboot</code> with minimal BOOTP support. This is the default method used by this automation tool.</p>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Advantages</h4>
+                        <ul>
+                            <li>Fully automated</li>
+                            <li>Minimal DHCP usage (1-minute lease)</li>
+                            <li>Scalable for multiple LPARs</li>
+                            <li>Fast deployment</li>
+                            <li>Easy to maintain</li>
+                            <li>Works with existing workflow</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Disadvantages</h4>
+                        <ul>
+                            <li>Requires minimal BOOTP/DHCP</li>
+                            <li>Needs dnsmasq service</li>
+                            <li>Network dependency</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>Implementation Status:</strong> This method is fully implemented in the automation. Set <code>dhcp.enabled: false</code> in your configuration file.
+                </div>
+
+                <h3>How It Works</h3>
+                <div class="steps">
+                    <ol>
+                        <li>HMC initiates network boot via <code>lpar_netboot</code> command</li>
+                        <li>LPAR sends BOOTP request</li>
+                        <li>dnsmasq responds with minimal BOOTP reply (1-minute lease)</li>
+                        <li>LPAR downloads GRUB bootloader from TFTP</li>
+                        <li>GRUB reads configuration with static IP kernel parameters</li>
+                        <li>Kernel boots with static IP (no DHCP lease used)</li>
+                    </ol>
+                </div>
+
+                <h3>Configuration</h3>
+                <div class="code-block">
+<pre># In my-vars.yaml
+dhcp:
+  router: "192.168.79.2"
+  netmask: "255.255.255.0"
+  enabled: false  # Minimal BOOTP mode
+
+sno:
+  ipaddr: "192.168.79.10"
+  macaddr: "fa:4e:86:23:37:20"</pre>
+                </div>
+
+                <h3>Command Used</h3>
+                <div class="code-block">
+<pre>lpar_netboot -i -f -t ent -m fa4e86233720 \
+  -s auto -d auto \
+  -S 192.168.79.2 \
+  -C 192.168.79.10 \
+  -G 192.168.79.2 \
+  -K 255.255.255.0 \
+  sno default_profile Server-9080-HEX-SN785EDA8</pre>
+                </div>
+            </div>
+
+            <!-- Method 2: ISO-Based Installation -->
+            <div class="method-card">
+                <h2>
+                    Method 2: ISO-Based Installation
+                    <span class="method-badge badge-advanced">ADVANCED</span>
+                </h2>
+                
+                <p><strong>Description:</strong> Boot from a custom ISO image with embedded ignition configuration. No network boot required.</p>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Advantages</h4>
+                        <ul>
+                            <li>No BOOTP/DHCP required</li>
+                            <li>No network boot needed</li>
+                            <li>Complete control</li>
+                            <li>Works in isolated environments</li>
+                            <li>Portable installation media</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Disadvantages</h4>
+                        <ul>
+                            <li>Manual ISO creation</li>
+                            <li>ISO management overhead</li>
+                            <li>Slower than network boot</li>
+                            <li>Requires virtual media or HMC storage</li>
+                            <li>Less automated</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Best For:</strong> Completely isolated networks, environments without TFTP access, one-time installations, or air-gapped deployments.
+                </div>
+
+                <h3>Implementation Steps</h3>
+                <div class="steps">
+                    <ol>
+                        <li>Download RHCOS live ISO</li>
+                        <li>Generate ignition configuration</li>
+                        <li>Embed ignition into ISO using coreos-installer</li>
+                        <li>Upload ISO to HMC or storage location</li>
+                        <li>Create virtual optical device on HMC</li>
+                        <li>Attach ISO to LPAR</li>
+                        <li>Boot LPAR from ISO</li>
+                        <li>Monitor installation</li>
+                        <li>Detach ISO after completion</li>
+                    </ol>
+                </div>
+
+                <h3>Commands</h3>
+                <div class="code-block">
+<pre># 1. Create custom ISO with embedded ignition
+coreos-installer iso ignition embed \
+  -i /path/to/sno.ign \
+  -o custom-rhcos-sno.iso \
+  rhcos-live-ppc64le.iso
+
+# 2. Upload to HMC (example using scp)
+scp custom-rhcos-sno.iso hmc_user@hmc:/var/vopt/
+
+# 3. Create virtual optical device on HMC
+mkvopt -name sno-install \
+  -file /var/vopt/custom-rhcos-sno.iso \
+  -ro
+
+# 4. Assign to LPAR
+chhwres -r virtualio --rsubtype vopt \
+  -m <cec> -o a \
+  -p <lpar> \
+  -s 1 -a "adapter_type=server,remote_lpar_id=1,remote_slot_num=1"
+
+# 5. Boot from virtual optical
+chsysstate -r lpar -m <cec> -o on \
+  -n <lpar> -f <profile> \
+  -b of</pre>
+                </div>
+
+                <h3>Network Configuration in Ignition</h3>
+                <div class="code-block">
+<pre># Static IP configuration in ignition file
+{
+  "ignition": {"version": "3.2.0"},
+  "storage": {
+    "files": [{
+      "path": "/etc/NetworkManager/system-connections/static.nmconnection",
+      "mode": 384,
+      "contents": {
+        "source": "data:text/plain;base64,W2Nvbm5lY3Rpb25dCmlkPXN0YXRpYwp0eXBlPWV0aGVybmV0CgpbaXB2NF0KYWRkcmVzczE9MTkyLjE2OC43OS4xMC8yNCwxOTIuMTY4Ljc5LjIKZG5zPTE5Mi4xNjguNzkuMjsKbWV0aG9kPW1hbnVhbA=="
+      }
+    }]
+  }
+}</pre>
+                </div>
+            </div>
+
+            <!-- Method 3: LPAR Profile Boot -->
+            <div class="method-card">
+                <h2>
+                    Method 3: Direct LPAR Profile Boot
+                    <span class="method-badge badge-advanced">ADVANCED</span>
+                </h2>
+                
+                <p><strong>Description:</strong> Configure network boot settings directly in the LPAR profile. Boot without <code>lpar_netboot</code> command.</p>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Advantages</h4>
+                        <ul>
+                            <li>No BOOTP/DHCP required</li>
+                            <li>Persistent configuration</li>
+                            <li>Faster subsequent boots</li>
+                            <li>Network settings in profile</li>
+                            <li>No command-line boot needed</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Disadvantages</h4>
+                        <ul>
+                            <li>Complex initial setup</li>
+                            <li>Requires HMC profile modification</li>
+                            <li>Profile changes per LPAR</li>
+                            <li>Less flexible</li>
+                            <li>Harder to automate</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Best For:</strong> Permanent LPAR configurations, environments with few LPARs, situations where network boot settings rarely change.
+                </div>
+
+                <h3>Implementation Steps</h3>
+                <div class="steps">
+                    <ol>
+                        <li>Access HMC command line or GUI</li>
+                        <li>Locate LPAR profile to modify</li>
+                        <li>Add network boot configuration</li>
+                        <li>Set boot device order (network first)</li>
+                        <li>Configure static IP parameters</li>
+                        <li>Set TFTP server and boot file</li>
+                        <li>Save profile</li>
+                        <li>Activate LPAR with modified profile</li>
+                    </ol>
+                </div>
+
+                <h3>HMC Commands</h3>
+                <div class="code-block">
+<pre># 1. View current profile
+lssyscfg -r prof -m <cec> \
+  --filter "lpar_names=<lpar>" \
+  -F name,boot_mode
+
+# 2. Modify profile with network boot settings
+chsyscfg -r prof -m <cec> -i \
+  "name=<profile>,\
+   lpar_name=<lpar>,\
+   boot_mode=norm,\
+   net_boot_device=ent0,\
+   net_boot_server=192.168.79.2,\
+   net_boot_file=boot/grub2/powerpc-ieee1275/core.elf,\
+   net_boot_client_ip=192.168.79.10,\
+   net_boot_gateway=192.168.79.2,\
+   net_boot_subnet_mask=255.255.255.0"
+
+# 3. Activate LPAR with profile
+chsysstate -r lpar -m <cec> -o on \
+  -n <lpar> -f <profile></pre>
+                </div>
+            </div>
+
+            <!-- Method 4: Manual SMS Configuration -->
+            <div class="method-card">
+                <h2>
+                    Method 4: Manual SMS Configuration
+                    <span class="method-badge badge-manual">MANUAL</span>
+                </h2>
+                
+                <p><strong>Description:</strong> Manually configure network boot through the System Management Services (SMS) menu during LPAR boot.</p>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Advantages</h4>
+                        <ul>
+                            <li>No automation required</li>
+                            <li>Full interactive control</li>
+                            <li>Good for troubleshooting</li>
+                            <li>No BOOTP/DHCP needed</li>
+                            <li>Can verify settings visually</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Disadvantages</h4>
+                        <ul>
+                            <li>Completely manual</li>
+                            <li>Not scalable</li>
+                            <li>Time-consuming</li>
+                            <li>Requires console access</li>
+                            <li>Error-prone</li>
+                            <li>Not repeatable</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Best For:</strong> One-time installations, troubleshooting boot issues, testing configurations, learning the boot process.
+                </div>
+
+                <h3>Implementation Steps</h3>
+                <div class="steps">
+                    <ol>
+                        <li>Boot LPAR and press F1 to enter SMS menu</li>
+                        <li>Select "Setup Remote IPL (Network Boot)"</li>
+                        <li>Choose network adapter</li>
+                        <li>Select "IP Parameters"</li>
+                        <li>Enter Client IP Address: 192.168.79.10</li>
+                        <li>Enter Server IP Address: 192.168.79.2</li>
+                        <li>Enter Gateway IP: 192.168.79.2</li>
+                        <li>Enter Subnet Mask: 255.255.255.0</li>
+                        <li>Enter Boot File: boot/grub2/powerpc-ieee1275/core.elf</li>
+                        <li>Save configuration</li>
+                        <li>Exit SMS and boot</li>
+                    </ol>
+                </div>
+
+                <h3>SMS Menu Navigation</h3>
+                <div class="code-block">
+<pre>SMS Menu Structure:
+├── Boot Options
+│   └── Setup Remote IPL (Network Boot)
+│       ├── Select Network Adapter
+│       │   └── ent0 (or your adapter)
+│       ├── IP Parameters
+│       │   ├── Client IP Address: 192.168.79.10
+│       │   ├── Server IP Address: 192.168.79.2
+│       │   ├── Gateway IP: 192.168.79.2
+│       │   └── Subnet Mask: 255.255.255.0
+│       ├── Boot File
+│       │   └── boot/grub2/powerpc-ieee1275/core.elf
+│       └── Save and Exit
+└── Exit SMS and Continue Boot</pre>
+                </div>
+            </div>
+
+            <!-- Method 5: Custom Boot Script -->
+            <div class="method-card">
+                <h2>
+                    Method 5: Custom Boot Script
+                    <span class="method-badge badge-advanced">ADVANCED</span>
+                </h2>
+                
+                <p><strong>Description:</strong> Create a custom script that configures network and initiates boot without BOOTP.</p>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Advantages</h4>
+                        <ul>
+                            <li>Highly customizable</li>
+                            <li>No BOOTP required</li>
+                            <li>Can include custom logic</li>
+                            <li>Reusable once created</li>
+                            <li>Automated execution</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Disadvantages</h4>
+                        <ul>
+                            <li>Requires script development</li>
+                            <li>Complex to implement</li>
+                            <li>Platform-specific</li>
+                            <li>Harder to maintain</li>
+                            <li>Need to inject into boot process</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Best For:</strong> Custom requirements, advanced automation needs, environments with specific boot workflows, integration with existing tools.
+                </div>
+
+                <h3>Example Implementation</h3>
+                <div class="code-block">
+<pre>#!/bin/bash
+# custom-network-boot.sh
+# Custom network boot script for PowerVM LPAR
+
+set -e
+
+# Configuration
+CLIENT_IP="192.168.79.10"
+NETMASK="255.255.255.0"
+GATEWAY="192.168.79.2"
+TFTP_SERVER="192.168.79.2"
+INTERFACE="eth0"
+BOOT_FILE="boot/grub2/powerpc-ieee1275/core.elf"
+
+# Configure network interface
+echo "Configuring network interface ${INTERFACE}..."
+ip addr add ${CLIENT_IP}/${NETMASK} dev ${INTERFACE}
+ip link set ${INTERFACE} up
+ip route add default via ${GATEWAY}
+
+# Verify network connectivity
+echo "Testing connectivity to TFTP server..."
+ping -c 3 ${TFTP_SERVER}
+
+# Mount TFTP root via NFS
+echo "Mounting TFTP root..."
+mkdir -p /mnt/tftp
+mount -t nfs ${TFTP_SERVER}:/var/lib/tftpboot /mnt/tftp
+
+# Execute bootloader
+echo "Executing bootloader..."
+/mnt/tftp/${BOOT_FILE}
+
+# Cleanup on failure
+trap 'umount /mnt/tftp 2>/dev/null' EXIT</pre>
+                </div>
+
+                <h3>Integration with Automation</h3>
+                <div class="code-block">
+<pre># Ansible task to deploy custom boot script
+- name: Deploy custom boot script
+  copy:
+    src: custom-network-boot.sh
+    dest: /var/lib/tftpboot/scripts/boot.sh
+    mode: '0755'
+
+- name: Configure LPAR to use custom script
+  shell: |
+    ssh {{ pvm_hmc }} "chsyscfg -r prof -m {{ sno.pvmcec }} -i \
+      'name={{ profile }},\
+       lpar_name={{ sno.pvmlpar }},\
+       boot_mode=norm,\
+       boot_script=/scripts/boot.sh'"</pre>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <h2 class="section-title">Method Comparison</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>BOOTP Required</th>
+                        <th>Automation</th>
+                        <th>Complexity</th>
+                        <th>Scalability</th>
+                        <th>Best Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Network Boot (Minimal BOOTP)</strong></td>
+                        <td><span class="rating rating-low">Minimal</span></td>
+                        <td><span class="rating rating-high">High</span></td>
+                        <td><span class="rating rating-low">Low</span></td>
+                        <td><span class="rating rating-high">High</span></td>
+                        <td>Production deployments, automated installations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. ISO-Based</strong></td>
+                        <td><span class="rating rating-none">None</span></td>
+                        <td><span class="rating rating-medium">Medium</span></td>
+                        <td><span class="rating rating-medium">Medium</span></td>
+                        <td><span class="rating rating-medium">Medium</span></td>
+                        <td>Isolated environments, one-time installs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. LPAR Profile</strong></td>
+                        <td><span class="rating rating-none">None</span></td>
+                        <td><span class="rating rating-medium">Medium</span></td>
+                        <td><span class="rating rating-high">High</span></td>
+                        <td><span class="rating rating-medium">Medium</span></td>
+                        <td>Permanent configurations, few LPARs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Manual SMS</strong></td>
+                        <td><span class="rating rating-none">None</span></td>
+                        <td><span class="rating rating-none">None</span></td>
+                        <td><span class="rating rating-low">Low</span></td>
+                        <td><span class="rating rating-none">None</span></td>
+                        <td>Troubleshooting, testing, single installs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Custom Script</strong></td>
+                        <td><span class="rating rating-none">None</span></td>
+                        <td><span class="rating rating-high">High</span></td>
+                        <td><span class="rating rating-high">High</span></td>
+                        <td><span class="rating rating-medium">Medium</span></td>
+                        <td>Custom requirements, advanced automation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Decision Guide -->
+            <h2 class="section-title">Decision Guide</h2>
+
+            <div class="method-card">
+                <h3>Choose Your Boot Method</h3>
+                
+                <div class="steps">
+                    <h4>If you need...</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="margin: 15px 0; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 5px;">
+                            <strong>Automated, scalable deployment</strong><br>
+                            → Use <strong>Method 1: Network Boot with Minimal BOOTP</strong> (Recommended)
+                        </li>
+                        <li style="margin: 15px 0; padding: 15px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 5px;">
+                            <strong>No DHCP/BOOTP at all</strong><br>
+                            → Use <strong>Method 2: ISO-Based Installation</strong>
+                        </li>
+                        <li style="margin: 15px 0; padding: 15px; background: #f3e5f5; border-left: 4px solid #9c27b0; border-radius: 5px;">
+                            <strong>Permanent LPAR configuration</strong><br>
+                            → Use <strong>Method 3: LPAR Profile Boot</strong>
+                        </li>
+                        <li style="margin: 15px 0; padding: 15px; background: #e0f2f1; border-left: 4px solid #009688; border-radius: 5px;">
+                            <strong>One-time install or troubleshooting</strong><br>
+                            → Use <strong>Method 4: Manual SMS Configuration</strong>
+                        </li>
+                        <li style="margin: 15px 0; padding: 15px; background: #fce4ec; border-left: 4px solid #e91e63; border-radius: 5px;">
+                            <strong>Custom boot workflow</strong><br>
+                            → Use <strong>Method 5: Custom Boot Script</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Resources -->
+            <h2 class="section-title">Additional Resources</h2>
+
+            <div class="method-card">
+                <h3>Documentation Links</h3>
+                <ul>
+                    <li><a href="quick-start.html">Quick Start Guide</a> - Step-by-step installation guide</li>
+                    <li><a href="installation-guide.html">Full Installation Guide</a> - Comprehensive documentation</li>
+                    <li><a href="../STATIC_IP_GUIDE.md">Static IP Guide</a> - Detailed static IP configuration</li>
+                    <li><a href="../README.md">README</a> - Project overview</li>
+                </ul>
+
+                <h3>External References</h3>
+                <ul>
+                    <li><a href="https://www.ibm.com/docs/en/aix/7.2.0?topic=l-lpar-netboot-command" target="_blank">IBM lpar_netboot Documentation</a></li>
+                    <li><a href="https://www.kernel.org/doc/Documentation/filesystems/nfs/nfsroot.txt" target="_blank">Linux Kernel nfsroot Documentation</a></li>
+                    <li><a href="https://docs.openshift.com/container-platform/latest/installing/installing_ibm_power/installing-ibm-power.html" target="_blank">OpenShift on IBM Power Documentation</a></li>
+                    <li><a href="https://coreos.github.io/coreos-installer/" target="_blank">CoreOS Installer Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

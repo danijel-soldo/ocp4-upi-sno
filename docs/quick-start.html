@@ -222,8 +222,9 @@
         </header>
 
         <div class="nav">
-            <a href="installation-guide.html">Full Installation Guide</a>
+            <a href="index.html">Full Installation Guide</a>
             <a href="quick-start.html">Quick Start</a>
+            <a href="boot-methods.html">Boot Methods</a>
         </div>
 
         <div class="content">
@@ -260,6 +261,36 @@
 <pre>vi my-vars.yaml
 # or use your preferred editor: nano, vim, etc.</pre>
                 </div>
+                <div class="info">
+                    <strong>How to Find Your Network Information:</strong>
+                    <p>If you don't know your gateway IP and netmask, run these commands on your bastion node:</p>
+                    <div class="code-block">
+<pre># Get your current IP address, gateway, and netmask
+ip addr show
+
+# Get default gateway
+ip route | grep default
+
+# Alternative: Get gateway and netmask together
+ip route show
+
+# Example output:
+# default via 192.168.79.1 dev eth0 proto static metric 100
+# 192.168.79.0/24 dev eth0 proto kernel scope link src 192.168.79.2
+
+# From this output:
+# - Gateway (dhcp.router): 192.168.79.1
+# - Netmask: /24 = 255.255.255.0
+# - Your bastion IP (helper.ipaddr): 192.168.79.2</pre>
+                    </div>
+                    <p><strong>Common Netmask Conversions:</strong></p>
+                    <ul>
+                        <li>/24 = 255.255.255.0 (most common)</li>
+                        <li>/16 = 255.255.0.0</li>
+                        <li>/8 = 255.0.0.0</li>
+                    </ul>
+                </div>
+
 
                 <h3>Required Fields to Configure</h3>
                 <p>You must configure the following fields in <code>my-vars.yaml</code>:</p>

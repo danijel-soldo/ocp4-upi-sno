@@ -49,10 +49,32 @@ dhcp-boot=boot/grub2/powerpc-ieee1275/core.elf
 {% else %}
 
 ##################################
-# TFTP (without DHCP)
+# BOOTP/PXE (Static IP Mode)
 ##################################
-# DHCP is disabled - using static IP configuration
-# Only DNS and TFTP services are enabled
+# Static IP mode: Minimal BOOTP support for lpar_netboot
+# The lpar_netboot command requires BOOTP protocol to initiate network boot
+# This configuration responds to BOOTP requests but does NOT provide DHCP leases
+# The actual IP configuration comes from kernel boot parameters (see grub.cfg)
+
+# Enable BOOTP/DHCP only for known MAC addresses (security)
+dhcp-ignore=tag:!known
+
+# Minimal DHCP range - only responds to BOOTP, no lease management
+# Using very short lease time (1 minute) as IP comes from kernel parameters
+dhcp-range={{ sno.ipaddr }},static,255.255.255.0,1m
+
+# Static host entries for BOOTP (required for lpar_netboot)
+dhcp-host={{ sno.macaddr }},{{ sno.name }},{{ sno.ipaddr }},1m
+
+{% if day2_worker is defined %}
+dhcp-host={{ day2_worker.macaddr }},{{ day2_worker.ipaddr }},{{ day2_worker.name | lower }},1m
+{% endif %}
+
+# PXE boot configuration
 enable-tftp
 tftp-root=/var/lib/tftpboot
+dhcp-boot=boot/grub2/powerpc-ieee1275/core.elf
+
+# Note: After BOOTP completes and kernel boots, the LPAR will use
+# the static IP configuration from kernel parameters, not from DHCP
 {% endif %}
