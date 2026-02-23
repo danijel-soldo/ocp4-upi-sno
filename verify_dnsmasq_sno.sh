@@ -5,7 +5,8 @@
 # with static IP networking (no Day 2 workers)
 #
 
-set -e
+# Don't exit on errors - we want to run all checks
+set +e
 
 # Colors for output
 RED='\033[0;31m'
