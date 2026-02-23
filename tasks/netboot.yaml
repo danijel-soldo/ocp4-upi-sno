@@ -1,5 +1,27 @@
 ---
 # tasks file for netboot nodes
+#
+# BOOT SEQUENCE OVERVIEW:
+# 1. HMC initiates network boot via lpar_netboot with network parameters (-S, -C, -G, -K)
+# 2. LPAR uses these parameters to configure network temporarily and reach TFTP server
+# 3. LPAR downloads GRUB bootloader from TFTP server
+# 4. GRUB reads grub.cfg from TFTP server (contains kernel boot parameters)
+# 5. Kernel boots with IP configuration from grub.cfg (ip=dhcp OR static IP string)
+#
+# IMPORTANT: The lpar_netboot command provides initial network config to access TFTP,
+# but does NOT set the final static IP. Final IP configuration is handled via kernel
+# boot parameters in the GRUB configuration (see tasks/generate_grub.yaml).
+#
+# The -D flag in lpar_netboot means "ping the gateway before booting" (network verification).
+# Reference: https://www.ibm.com/docs/en/aix/7.2.0?topic=l-lpar-netboot-command
+#
+# DHCP Mode: Uses -D flag to verify gateway connectivity before boot.
+#            After kernel boots, LPAR obtains IP address from DHCP server.
+#
+# Static IP Mode: No -D flag (skips gateway ping).
+#                 After kernel boots, LPAR uses static IP from kernel parameters.
+#                 No DHCP server is required.
+
 - name: netboot sno node with DHCP
   when: day2_worker is not defined and (dhcp.enabled | default(true))
   shell: |
@@ -8,6 +30,8 @@
     pvmcec={{ sno.pvmcec }}
     pvmlpar={{ sno.pvmlpar }}
     pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
+    # -D flag: Ping gateway before booting (network verification)
+    # DHCP mode: LPAR will get IP from DHCP server after boot
     remote_cmd="lpar_netboot -i -D -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ sno.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
     ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"
 
@@ -19,6 +43,9 @@
     pvmcec={{ sno.pvmcec }}
     pvmlpar={{ sno.pvmlpar }}
     pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
+    # No -D flag: Skip gateway ping
+    # Static IP mode: LPAR uses IP from kernel boot parameters (see tasks/generate_grub.yaml)
+    # The static IP configuration is NOT set by lpar_netboot but by kernel parameters
     remote_cmd="lpar_netboot -i -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ sno.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
     ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"
 
@@ -30,6 +57,8 @@
     pvmcec={{ day2_worker.pvmcec }}
     pvmlpar={{ day2_worker.pvmlpar }}
     pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
+    # -D flag: Ping gateway before booting (network verification)
+    # DHCP mode: Day2 worker will get IP from DHCP server after boot
     remote_cmd="lpar_netboot -i -D -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ day2_worker.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
     ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"
 
@@ -41,5 +70,7 @@
     pvmcec={{ day2_worker.pvmcec }}
     pvmlpar={{ day2_worker.pvmlpar }}
     pvm_profile=`ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "lssyscfg -r lpar -m ${pvmcec} --filter lpar_names=${pvmlpar} -F curr_profile"`
+    # No -D flag: Skip gateway ping
+    # Static IP mode: Day2 worker uses IP from kernel boot parameters
     remote_cmd="lpar_netboot -i -f -t ent -m ${pvm_mac} -s auto -d auto -S {{ helper.ipaddr }} -C {{ day2_worker.ipaddr }} -G {{ dhcp.router }} -K {{ dhcp.netmask }} ${pvmlpar} ${pvm_profile} ${pvmcec}"
     ssh -o StrictHostKeyChecking=no {{ pvm_hmc }} "${remote_cmd}"

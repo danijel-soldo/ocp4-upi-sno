@@ -48,22 +48,59 @@ pvm_hmc: hmc_user@hmc.host.ip
 ### Network Configuration
 | Aspect | DHCP Mode | Static IP Mode |
 |--------|-----------|----------------|
-| IP Assignment | Via DHCP | Via kernel parameters |
+| IP Assignment | Via DHCP server | Via kernel boot parameters |
 | Boot Command | `lpar_netboot -i -D -f ...` | `lpar_netboot -i -f ...` |
+| `-D` Flag Meaning | Ping gateway before boot | (not used) |
 | Firewall Port 67/udp | Open | Closed |
-| Network Config | DHCP lease | Static in GRUB |
+| Network Config | DHCP lease | Static in GRUB kernel params |
+
+**Important:** The `-D` flag in `lpar_netboot` means "ping the gateway before booting" (network verification), NOT "enable DHCP". The actual static IP configuration is set via kernel boot parameters in the GRUB configuration, not by the `lpar_netboot` command.
+
+Reference: [IBM lpar_netboot documentation](https://www.ibm.com/docs/en/aix/7.2.0?topic=l-lpar-netboot-command)
+
+### Boot Sequence Explained
+
+**How does the LPAR reach TFTP server without DHCP?**
+
+The `lpar_netboot` command provides the initial network configuration needed to access the TFTP server:
+
+1. **HMC initiates network boot** with `lpar_netboot` parameters:
+   - `-S {{ helper.ipaddr }}` = TFTP server IP
+   - `-C {{ sno.ipaddr }}` = Client (LPAR) IP
+   - `-G {{ dhcp.router }}` = Gateway IP
+   - `-K {{ dhcp.netmask }}` = Netmask
+
+2. **LPAR configures network** using these parameters temporarily to reach TFTP server
+
+3. **LPAR downloads GRUB** bootloader from TFTP server
+
+4. **GRUB reads grub.cfg** from TFTP server (contains kernel boot parameters)
+
+5. **Kernel boots** with IP configuration from grub.cfg:
+   - **DHCP mode**: `ip=dhcp` → requests IP from DHCP server
+   - **Static IP mode**: `ip=192.168.79.10::192.168.79.2:...` → uses static IP
+
+**Key Point:** The `lpar_netboot` command provides enough network configuration for the LPAR to access TFTP and download the bootloader. The difference between DHCP and Static IP modes is what happens AFTER the kernel boots - whether it requests an IP from DHCP or uses the static IP from kernel parameters.
 
 ### GRUB Boot Parameters
+
+This is where the actual static IP configuration happens (see `tasks/generate_grub.yaml`).
 
 **DHCP Mode:**
 ```
 linux "/rhcos/kernel" ip=dhcp rd.neednet=1 ...
 ```
+- LPAR will request IP from DHCP server during boot
 
 **Static IP Mode:**
 ```
 linux "/rhcos/kernel" ip=192.168.79.10::192.168.79.2:255.255.255.0:sno.sno.cloud.lab:env32:none nameserver=192.168.79.2 rd.neednet=1 ...
 ```
+- Format: `ip=<client-ip>::<gateway>:<netmask>:<hostname>:<interface>:none nameserver=<dns>`
+- LPAR configures network interface with these parameters during boot
+- No DHCP server required
+
+Reference: [Linux kernel nfsroot documentation](https://www.kernel.org/doc/Documentation/filesystems/nfs/nfsroot.txt)
 
 ## Validation
 

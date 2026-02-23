@@ -1,4 +1,21 @@
 ---
+# GRUB Boot Configuration
+#
+# This task generates the GRUB configuration for PXE network boot.
+# The key difference between DHCP and Static IP modes is in the kernel boot parameters.
+#
+# DHCP Mode: Uses "ip=dhcp" kernel parameter
+#            - LPAR will request IP address from DHCP server during boot
+#            - Requires dnsmasq DHCP service to be running
+#
+# Static IP Mode: Uses explicit IP configuration in kernel parameters
+#                 - Format: ip=<client-ip>::<gateway>:<netmask>:<hostname>:<interface>:none nameserver=<dns>
+#                 - LPAR configures network interface with these parameters during boot
+#                 - No DHCP server required
+#                 - This is where the actual static IP configuration happens (not in lpar_netboot)
+#
+# Reference: https://www.kernel.org/doc/Documentation/filesystems/nfs/nfsroot.txt
+
 - name: Set IP configuration for kernel boot parameters
   set_fact:
     ip_config: "{% if dhcp.enabled | default(true) %}ip=dhcp{% else %}ip={{ sno.ipaddr }}::{{ dhcp.router }}:{{ dhcp.netmask }}:{{ sno.name }}.{{ dns.clusterid }}.{{ dns.domain }}:{{ networkifacename }}:none nameserver={{ helper.ipaddr }}{% endif %}"
