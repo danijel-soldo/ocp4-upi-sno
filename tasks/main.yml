@@ -8,6 +8,14 @@
   - import_tasks: ../handlers/main.yml
 
   tasks:
+  - name: Install required Ansible collections
+    delegate_to: localhost
+    become: false
+    shell: ansible-galaxy collection install ansible.posix --force
+    register: collection_install
+    changed_when: "'was installed successfully' in collection_install.stdout"
+    failed_when: collection_install.rc != 0
+
   - name: Validate configuration
     include_tasks: validate_config.yaml
 
@@ -53,7 +61,7 @@
 
   - name: Open up firewall ports
     become: true
-    firewalld:
+    ansible.posix.firewalld:
       permanent: yes
       immediate: yes
       state: enabled
@@ -83,31 +91,52 @@
     with_items:
       - "{{ services }}"
 
-  - name: Wait for dnsmasq to be ready
+  - name: Check dnsmasq configuration and status
     become: true
-    wait_for:
-      port: "{{ item }}"
-      host: 0.0.0.0
-      timeout: 30
-      msg: "dnsmasq failed to start listening on port {{ item }}"
-    with_items:
-      - 53   # DNS
-      - 67   # DHCP/BOOTP
-      - 69   # TFTP
+    shell: |
+      echo "=== dnsmasq.conf interface setting ==="
+      grep "^interface=" /etc/dnsmasq.conf || echo "No interface setting found"
+      echo ""
+      echo "=== dnsmasq process status ==="
+      systemctl status dnsmasq --no-pager || true
+      echo ""
+      echo "=== dnsmasq listening ports ==="
+      netstat -tulpn | grep dnsmasq || echo "dnsmasq not listening on any ports"
+      echo ""
+      echo "=== Interface env32 status ==="
+      ip addr show env32 || echo "Interface env32 not found"
+    register: dnsmasq_debug
+    ignore_errors: yes
+
+  - name: Display dnsmasq diagnostic information
+    debug:
+      var: dnsmasq_debug.stdout_lines
+
+  - name: Verify dnsmasq ports are listening (using netstat)
+    become: true
+    shell: |
+      netstat -tulpn | grep -E ":(53|67|69) " | grep dnsmasq
+    register: dnsmasq_ports
+    retries: 5
+    delay: 2
+    until: dnsmasq_ports.rc == 0
+    changed_when: false
     when: dhcp.enabled | default(true)
 
-  - name: Wait for dnsmasq DNS/TFTP to be ready (static IP mode)
+  - name: Verify dnsmasq ports are listening for static IP mode
     become: true
-    wait_for:
-      port: "{{ item }}"
-      host: 0.0.0.0
-      timeout: 30
-      msg: "dnsmasq failed to start listening on port {{ item }}"
-    with_items:
-      - 53   # DNS
-      - 67   # DHCP/BOOTP (still needed for lpar_netboot)
-      - 69   # TFTP
+    shell: |
+      netstat -tulpn | grep -E ":(53|67|69) " | grep dnsmasq
+    register: dnsmasq_ports_static
+    retries: 5
+    delay: 2
+    until: dnsmasq_ports_static.rc == 0
+    changed_when: false
     when: not (dhcp.enabled | default(true))
+
+  - name: Display dnsmasq listening ports
+    debug:
+      msg: "{{ (dnsmasq_ports.stdout_lines | default([])) + (dnsmasq_ports_static.stdout_lines | default([])) }}"
 
   - name: Verify dnsmasq service status
     become: true
