@@ -83,6 +83,40 @@
     with_items:
       - "{{ services }}"
 
+  - name: Wait for dnsmasq to be ready
+    become: true
+    wait_for:
+      port: "{{ item }}"
+      host: 0.0.0.0
+      timeout: 30
+      msg: "dnsmasq failed to start listening on port {{ item }}"
+    with_items:
+      - 53   # DNS
+      - 67   # DHCP/BOOTP
+      - 69   # TFTP
+    when: dhcp.enabled | default(true)
+
+  - name: Wait for dnsmasq DNS/TFTP to be ready (static IP mode)
+    become: true
+    wait_for:
+      port: "{{ item }}"
+      host: 0.0.0.0
+      timeout: 30
+      msg: "dnsmasq failed to start listening on port {{ item }}"
+    with_items:
+      - 53   # DNS
+      - 67   # DHCP/BOOTP (still needed for lpar_netboot)
+      - 69   # TFTP
+    when: not (dhcp.enabled | default(true))
+
+  - name: Verify dnsmasq service status
+    become: true
+    systemd:
+      name: dnsmasq
+      state: started
+    register: dnsmasq_status
+    failed_when: dnsmasq_status.status.ActiveState != 'active'
+
   # DISABLED: This task overwrites /etc/resolv.conf and breaks external DNS resolution
   # The helper node needs to use system DNS to resolve HMC and other external hosts
   # Configure DNS via NetworkManager or manually, then make resolv.conf immutable
