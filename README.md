@@ -4,7 +4,7 @@ For current OpenShift release, the `openshift-install` supports to create the sp
 
 ## 📖 Quick Start
 
-**[View Interactive Installation Guide]([docs/index.html](https://danijel-soldo.github.io/ocp4-upi-sno/quick-start.html))** - Open this HTML file in your browser for a comprehensive visual guide with diagrams and examples.
+**[[View Interactive Installation Guide](https://danijel-soldo.github.io/ocp4-upi-sno/quick-start.html)]** - Open this HTML file in your browser for a comprehensive visual guide with diagrams and examples.
 
 ```bash
 # Open the guide in your default browser
