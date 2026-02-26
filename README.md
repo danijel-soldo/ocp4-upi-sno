@@ -13,6 +13,129 @@ xdg-open docs/installation-guide.html  # Linux
 start docs/installation-guide.html  # Windows
 ```
 
+## 🔧 Configuring OpenShift Version
+
+Before running the installation, you must configure the OpenShift version in your `my-vars.yaml` file. The automation will download and install the specified version.
+
+### Version Configuration Fields
+
+Edit these fields in your `my-vars.yaml` (based on `example-vars.yaml`):
+
+```yaml
+# For OpenShift 4.13 (stable):
+rhcos_rhcos_base: "4.13"
+rhcos_rhcos_tag: "latest"
+ocp_client_tag: "latest-4.13"
+
+# For OpenShift 4.14 (stable):
+rhcos_rhcos_base: "4.14"
+rhcos_rhcos_tag: "latest"
+ocp_client_tag: "latest-4.14"
+
+# For OpenShift 4.15 (stable):
+rhcos_rhcos_base: "4.15"
+rhcos_rhcos_tag: "latest"
+ocp_client_tag: "latest-4.15"
+
+# For specific version (e.g., 4.13.10):
+rhcos_rhcos_base: "4.13"
+rhcos_rhcos_tag: "4.13.10"
+ocp_client_tag: "4.13.10"
+```
+
+### Version Selection Guidelines
+
+- **Use "latest"** for the most recent patch version (recommended for production)
+- **Specify exact version** (e.g., "4.13.10") for reproducible installations
+- **Keep versions aligned:** `rhcos_rhcos_base` and `ocp_client_tag` must match the same major.minor version
+- **Check availability:** Visit [OpenShift Mirror](https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/) to see available versions
+
+### Complete URL Configuration
+
+The automation automatically constructs download URLs from these settings:
+
+```yaml
+# RHCOS Downloads
+rhcos_arch: "ppc64le"
+rhcos_base_url: "https://mirror.openshift.com/pub/openshift-v4/{{ rhcos_arch }}/dependencies/rhcos"
+rhcos_rhcos_base: "4.13"  # OpenShift major.minor version
+rhcos_rhcos_tag: "latest"  # Use "latest" or specific version
+
+# OCP Client/Installer Downloads
+ocp_client_arch: "ppc64le"
+ocp_base_url: "https://mirror.openshift.com/pub/openshift-v4/{{ ocp_client_arch }}/clients"
+ocp_client_base: "ocp"  # Use "ocp" for stable, "ocp-dev-preview" for nightly
+ocp_client_tag: "latest-4.13"  # Must match rhcos_rhcos_base version
+```
+
+**Important:** Do not modify the URL template lines (those with `{{ }}`). Only change the version-specific fields (`rhcos_rhcos_base`, `rhcos_rhcos_tag`, `ocp_client_tag`).
+
+## 🔄 Cleanup and Reinstall
+
+If an installation fails or you need to start over, use the provided cleanup script:
+
+### Automated Cleanup Script
+
+```bash
+# Basic cleanup (keeps downloaded files for faster reinstall)
+./cleanup_and_reinstall.sh
+
+# Force re-download of all files
+./cleanup_and_reinstall.sh --force-download
+
+# Use custom vars file
+./cleanup_and_reinstall.sh --vars-file my-custom-vars.yaml
+```
+
+**What the script does:**
+1. Stops any running `openshift-install` processes
+2. Cleans up the work directory (`~/ocp4-sno` by default)
+3. Powers off the SNO LPAR via HMC
+4. Optionally removes cached downloads to force fresh download
+5. Waits for LPAR to fully power off
+
+**After cleanup, update your configuration and reinstall:**
+```bash
+# Edit configuration if needed
+vi my-vars.yaml
+
+# Run installation
+ansible-playbook tasks/main.yml -e @my-vars.yaml
+```
+
+### Manual Cleanup Steps
+
+If you prefer manual cleanup or the script doesn't work:
+
+```bash
+# 1. Stop openshift-install processes
+pkill -9 openshift-install
+
+# 2. Clean work directory
+rm -rf ~/ocp4-sno
+
+# 3. Power off SNO LPAR (replace with your values)
+ssh hmc_user@hmc_host "chsysstate -r lpar -m YOUR_CEC -o shutdown --immed -n YOUR_LPAR"
+
+# 4. Optional: Force re-download
+sudo rm -rf /usr/local/src/rhcos-*
+sudo rm -rf /usr/local/src/openshift-*
+
+# 5. Wait 30 seconds
+sleep 30
+
+# 6. Reinstall
+ansible-playbook tasks/main.yml -e @my-vars.yaml
+```
+
+### Common Reasons for Reinstall
+
+- **Version mismatch**: RHCOS and OpenShift versions don't match
+- **Wrong disk specified**: Installation disk doesn't exist on LPAR
+- **Network issues**: LPAR can't reach helper node
+- **Corrupted ignition**: Ignition file has errors
+- **Testing different configurations**: Trying DHCP vs static IP modes
+
 ## Requirements for installing OpenShift on a single node
 
 To do the SNO installation, we need two VMs, one works as bastion and another one as OCP node, the minimum hardware requirements as show as below:
